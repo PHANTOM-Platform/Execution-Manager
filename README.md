@@ -5,14 +5,12 @@ Server which keeps track of the Status of the Users' APPs
 
 
 ## 1.- Introduction
-The PHANTOM REPOSITORY server is composed of two components: a web server and a data storage system. 
+The PHANTOM Execution Manager server is composed of two components: a web server and a data storage system. 
 The web server provides various functionalities for data query and data analysis via RESTful APIs with documents in JSON format. 
-The server's URL is "http://localhost:8000" by default.
+The server's URL is "http://localhost:8600" by default.
 
- <p align="center">
-<a href="https://github.com/PHANTOM-Platform/Repository/blob/master/repository.png">
-<img src="https://github.com/PHANTOM-Platform/Repository/blob/master/repository.png" align="middle" width="50%" height="50%" title="Schema" alt="Repository Schema">
-</a> </p>
+The Execution Manager process the collected data by the Monitoring-Server.
+
 
 
 ## 2.- Prerequisites
@@ -22,7 +20,7 @@ The installation was tested with Ubuntu 16.04 LTS.
 Before you can proceed, please clone the repository:
 
 ```bash
-git clone https://github.com/PHANTOM-Platform/Repository.git;
+git clone https://github.com/PHANTOM-Platform/Execution-Manager.git;
 ```
 
 
@@ -31,6 +29,7 @@ This project requires the following dependencies to be installed:
 
 | Component         | Homepage                                           | Version   |
 |------------------ |--------------------------------------------------  |---------  |
+| Monitoring-Server | https://github.com/PHANTOM-Platform/Monitoring     |           |
 | Elasticsearch     | https://www.elastic.co/products/elasticsearch      | = 2.4.6   | 
 | Node.js           | https://apr.apache.org/                            | >= 4.5    |
 | npm               | https://www.npmjs.com/                             | >= 1.3.6  |
