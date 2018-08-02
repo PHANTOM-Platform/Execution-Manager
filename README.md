@@ -74,10 +74,10 @@ or the Shell script for Armv7l 64bits (tested on Raspbian):
 bash setup-server-armv7-64.sh
 ```
 
-The default port is 8000, which can be modified at the file repo_app.js.
+The default port is 8600, which can be modified at the file repo_app.js.
 
 
-#### 2.- The PHANTOM Repository relies on the Elasticsearch running on the SAME server, which should be installed by the previous scripts.
+#### 2.- The PHANTOM Execution-Manager relies on the Elasticsearch running on the SAME server, which should be installed by the previous scripts.
 <!---
 It is expected that ES is installed by the PHANTOM Monitoring Server.
 In case, that you wish to test the PHANTOM Repository without running or installing the PHANTOM Monitoring Server THEN you will need to set up an installation ElasticSearch.
@@ -105,17 +105,17 @@ Please take a look on the next suggested reference books, if you face difficulti
 
 ## 4.- Start/Stop the server
 
-#### 1.- The PHANTOM Repository relies on the Elasticsearch running on the SAME server. 
+#### 1.- The PHANTOM Execution-Manager relies on the Elasticsearch running on the SAME server. 
 
 ```bash
 bash start-es.sh;
 ```
 
-#### 2.- Start a PHANTOM REPOSITORY by executing, it is important to not do as root:
+#### 2.- Start a PHANTOM Execution-Manager by executing, it is important to not do as root:
 For security reasons, the services may not start if they are requested from root.
 
 ```bash
-bash start-repo.sh;
+bash start-execmanager.sh;
 ```
 
 You can use the following command to verify if the database and the server are running
@@ -123,13 +123,13 @@ You can use the following command to verify if the database and the server are r
 Test of the Nodejs Front-end running service:
 
 ```bash
-curl http://localhost:8000;
+curl http://localhost:8600;
 ```
 
 Test if the Front-end has access to the Elasticsearch DataBase Server.
 
 ```bash
-curl -s http://localhost:8000/verify_es_connection;
+curl -s http://localhost:8600/verify_es_connection;
 ```
 
 For more details on setup the server, please look into the examples of Admin-use at [api_command_line][api_command_line] or [api_bash_scripts][api_bash_scripts] (not developed for api_java because we will allow only the admin access on the localhost).
@@ -137,7 +137,7 @@ For more details on setup the server, please look into the examples of Admin-use
 
 After the usage, the server can be stopped by:
 ```bash
-bash stop-repo.sh;
+bash stop-execmanager.sh;
 ```
 
 
@@ -159,7 +159,7 @@ NOTICE: For securoity reasons, users' accounts can be ONLY registered on the ser
 
 ## 6.- Example of use
 
-The folders [api_command_line][api_command_line], [api_bash_scripts][api_bash_scripts], and [api_java][api_java] shows examples of using the PHANTOM REPOSITORY
+The folders [api_command_line][api_command_line], [api_bash_scripts][api_bash_scripts], and [api_java][api_java] shows examples of using the PHANTOM Execution-Manager
 
 Please access to those folders to get more details.
 
