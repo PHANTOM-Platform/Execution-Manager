@@ -11,6 +11,10 @@ The server's URL is "http://localhost:8600" by default.
 
 The Execution Manager process the collected data by the Monitoring-Server.
 
+ <p align="center">
+<a href="https://github.com/PHANTOM-Platform/Execution-Manager/blob/master/readme.png">
+<img src="https://github.com/PHANTOM-Platform/Execution-Manager/blob/master/readme.png" align="middle" width="50%" height="50%" title="Schema" alt="Repository Schema">
+</a> </p>
 
 
 ## 2.- Prerequisites
