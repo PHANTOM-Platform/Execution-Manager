@@ -807,18 +807,18 @@ app.get('/es_query_metadata', middleware.ensureAuthenticated, function(req, res)
 			+JSON.stringify(QueryBody),currentdate,res.user);
 	});
 }); 
-//**********************************************************
+//********************************************************** 
 function register_exec(req, res,new_exec){
 	"use strict";
 	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
 	var message_bad_request = "UPLOAD Bad Request missing ";
-	var resultlog ;
+	var resultlog;
 	if (!req.files){
 		res.writeHead(400, { 'Content-Type': contentType_text_plain });
 		res.end('No files were uploaded.');
 		resultlog = LogsModule.register_log(es_servername + ":" + es_port,SERVERDB, 400,req.connection.remoteAddress,'No files were uploaded.',currentdate,res.user);
 		return;
-	}  
+	}
 	if (req.files.UploadJSON == undefined){
 		res.writeHead(400, { 'Content-Type': contentType_text_plain });
 		res.end('Error Json file not found.');
@@ -832,7 +832,6 @@ function register_exec(req, res,new_exec){
 	var appname= get_value_json(jsontext,"app"); //(1) parsing the JSON
 	appname=appname.value;
 	jsontext =update_app_length_on_json(jsontext, appname); //this adds the field app.length
-	
 // 	console.log("send_exec_update_to_suscribers("+appname+")");
 	send_exec_update_to_suscribers(appname,jsontext);	
 	var result_count = ExecsModule.query_count_exec(es_servername + ":" + es_port,SERVERDB, appname);
@@ -883,7 +882,7 @@ function register_exec(req, res,new_exec){
 				});
 				algo.then((resultResolve) => {
 					res.writeHead(420, {"Content-Type": contentType_text_plain});
-					res.end( "Succeed." , 'utf-8');
+					res.end( "Succeed.", 'utf-8');
 					return;
 				},(resultReject)=> {
 					res.writeHead(400, {"Content-Type": contentType_text_plain});
@@ -918,7 +917,7 @@ function request_exec_id(appname){
 				if(resultResolve==0){//new entry (2) we resister new entry
 					var jsontext= {
 						"app": appname,
-						"app_length":  appname.length,
+						"app_length": appname.length,
 						"hide": "false"
 					};
 					var result = ExecsModule.register_exec_json(es_servername + ":" + es_port,SERVERDB, jsontext);
@@ -948,7 +947,7 @@ function request_exec_id(appname){
 }//request_exec_id
 
 //********************************************************** 
-app.get('/get_user_defined_metrics', function(req, res) { //this is for the table executions_status, all the info is in a JSON file
+app.get('/get_user_defined_metrics',middleware.ensureAuthenticated, function(req, res) { //this is for the table executions_status, all the info is in a JSON file
 	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
  	var appid		= CommonModule.remove_quotation_marks(find_param(req.body.appid, req.query.appid));
 	var execfile	= CommonModule.remove_quotation_marks(find_param(req.body.execfile, req.query.execfile));//deprecated, now we use taskid
@@ -957,10 +956,39 @@ app.get('/get_user_defined_metrics', function(req, res) { //this is for the tabl
 	if((taskid==undefined) && (execfile != undefined))
 		taskid=exefile;
 	if(execfile!=undefined){
-		if(taskid.length ==0 )
+		if(taskid.length ==0)
 			taskid=exefile;
 	}
-	var experimentid	= CommonModule.remove_quotation_marks(find_param(req.body.execution, req.query.execution));
+	var experimentid = CommonModule.remove_quotation_marks(find_param(req.body.experimentid, req.query.experimentid));
+
+		console.log(" user is: "+ res.user);
+		console.log("taskid is: "+taskid);
+		console.log("experimentid is:"+experimentid+";"+experimentid.length);
+		
+		
+		
+// 			var query_permission =request_exec_permission(res.user,pretty, experimentid);
+// 			query_permission.then((result) => {
+// 				for (var j = 0; j < 1; j++) {// 1 insted of result.totalkeys for considering only the first entry
+// // 					console.log("Permission "+j+" "+result.permission[j]);
+// 					if(result.permission[j] == "deny"){//permision denied
+// 						res.writeHead(403, {"Content-Type": contentType_text_plain});
+// 						res.end("Access DENY: You may not have permission to download some file in the folder\n");
+// 						return;
+// 					}else if (result.permission[j] != "permit"){//error procesing the request
+// 						res.writeHead(400, {"Content-Type": contentType_text_plain});
+// 						res.end("ERROR processing the permissions\n");
+// 						return;
+// 					}
+// 				}
+// 				console.log("permission granted");
+// 				
+// 			},(resultReject)=> {
+// 				res.writeHead(400, {'Content-Type': contentType_text_plain });
+// 				res.end("400 unexpected error "+resultReject);
+// 				return;
+// 			} ); 
+
 	if((taskid==undefined) || (appid==undefined) || ( experimentid ==undefined ) ){
 		res.writeHead(400, { 'Content-Type': contentType_text_plain });
 		res.end("\n400: Bad Request, missing " + "parameter" + ".\n");
@@ -1066,14 +1094,14 @@ app.get('/count_experiments_metrics', function(req, res) { //this is for the tab
 	var execfile	= CommonModule.remove_quotation_marks(find_param(req.body.execfile, req.query.execfile));//deprecated, now we use taskid
 	var experimentid	= CommonModule.remove_quotation_marks(find_param(req.body.execution, req.query.execution));
 	var taskid	= CommonModule.remove_quotation_marks(find_param(req.bodytaskid, req.query.taskid));
-	
+
 	if((taskid==undefined) && (execfile != undefined))
 		taskid=exefile;
 	if(execfile!=undefined){
 		if(taskid.length ==0 )
 			taskid=exefile;
 	}
-	if((taskid==undefined) || (appid==undefined) || ( experimentid ==undefined )  ){
+	if((taskid==undefined) || (appid==undefined) || ( experimentid ==undefined ) ){
 		res.writeHead(400, { 'Content-Type': contentType_text_plain });
 		res.end("\n400: Bad Request, missing " + "parameter" + ".\n");
 		return;
@@ -1102,7 +1130,7 @@ app.get('/count_executions', function(req, res) { //this is for the table execut
  	var appid		= CommonModule.remove_quotation_marks(find_param(req.body.appid, req.query.appid));
 	var execfile	= CommonModule.remove_quotation_marks(find_param(req.body.execfile, req.query.execfile));//deprecated, now we use taskid
 	var taskid	= CommonModule.remove_quotation_marks(find_param(req.bodytaskid, req.query.taskid));
-	
+
 	if((taskid==undefined) && (execfile != undefined))
 		taskid=exefile;
 	if(execfile!=undefined){
@@ -1148,7 +1176,7 @@ app.get('/list_executions', function(req, res) { //this is for the table executi
 		if(taskid.length ==0 )
 			taskid=exefile;
 	}	
-	if((taskid==undefined) || (appid==undefined)  ){
+	if((taskid==undefined) || (appid==undefined) ){
 		res.writeHead(400, { 'Content-Type': contentType_text_plain });
 		res.end("\n400: Bad Request, missing " + "parameter" + ".\n");
 		return;
@@ -1245,7 +1273,7 @@ app.get('/query_exec',middleware.ensureAuthenticated, function(req, res) {
 		res.writeHead(400, { 'Content-Type': contentType_text_plain });
 		res.end("\n400: Bad Request, missing " + "app" + ".\n");
 		return;} 
-	//*******************************************  
+	//*******************************************
 	var result_count = ExecsModule.query_count_exec(es_servername + ":" + es_port,SERVERDB, appname);
 	result_count.then((resultResolve) => {
 		if(resultResolve==0){//new entry (2) we resister new entry

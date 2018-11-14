@@ -17,7 +17,7 @@
 
 const CommonModule 	= require('./support-common');
 
-module.exports = { 
+module.exports = {
 compose_query: function(app ){ 
 	var mquery=undefined;
 	if (app != undefined)
@@ -27,7 +27,7 @@ compose_query: function(app ){
 	if(mquery!=undefined ){
 		mquery={"query":{"bool":{"must": mquery }}};
 	}else{ 
-		mquery={"query":{"match_all": {} }};
+		mquery={"query":{"match_all": {} }, "sort": { "app": { "order": "asc" }}};
 	}
 	return mquery;
 },
@@ -36,7 +36,7 @@ compose_query_id: function(id_string ){
 	if (id_string != undefined) {
 		mquery={"query":{"match":{"_id":id_string}}};
 	}else{ 
-		mquery={"query":{"match_all": {} }};
+		mquery={"query":{"match_all": {} }, "sort": { "app": { "order": "asc" }}};
 	}
 	return mquery;
 }, 
@@ -67,7 +67,7 @@ register_json: function(es_server, my_index, body, remoteAddress, my_type) {
 				},(reject_result)=> {
 					myres.code=reject_result.code;
 					myres.text=reject_result.text+response;
-					reject (myres);  
+					reject (myres);
 				});
 			}
 		});
@@ -86,7 +86,7 @@ find_exec: function(es_server, my_index, app, pretty){
 		}); 
 		if(app==undefined){
 			resolve({});
-		}else if(app.length==0){  
+		}else if(app.length==0){
 			client.search({
 				index: my_index,
 				type: my_type, 
@@ -110,12 +110,12 @@ find_exec: function(es_server, my_index, app, pretty){
 						}
 					});
 				};
-				resolve("{\"hits\" :["+result+"]}");  
+				resolve("{\"hits\" :["+result+"]}");
 			});
 		}else{ 
 			client.search({
 				index: my_index,
-				type: my_type, 
+				type: my_type,
 				body: {
 					"query":{"bool":{"must":[
 							{"match_phrase":{"app": app }}, {"term":{"app_length": app.length}}
@@ -140,15 +140,15 @@ find_exec: function(es_server, my_index, app, pretty){
 register_exec_json: function(es_server, my_index, body, remoteAddress) {
 	const my_type = 'executions_status' ; 
 	return new Promise( (resolve,reject) => {
-	var result =  this.register_json (es_server, my_index, body, remoteAddress, my_type) ;
+	var result = this.register_json (es_server, my_index, body, remoteAddress, my_type) ;
 	result.then((resultResolve) => {
 		resolve (resultResolve); 
 	},(resultReject)=> {
-		reject (resultReject);  
+		reject (resultReject);
 	}); 
 	});
 }, //end register_exec_json 
-//***************************************************  
+//***************************************************
 //This function is used to confirm that a app exists or not in the DataBase.
 //We first counted if existence is >0
 find_exec_id: function(es_server, my_index, app){
@@ -179,8 +179,8 @@ find_exec_id: function(es_server, my_index, app){
 
 //****************************************************
 //This function is used to confirm that an user exists or not in the DataBase.
-get_user_defined_metrics: function(es_server,  appid, execfile, experimentid){
-	const my_index = appid+'_'+ execfile;
+get_user_defined_metrics: function(es_server, appid, taskid, experimentid){
+	const my_index = appid+'_'+ taskid;
 	return new Promise( (resolve,reject) => {
 		var elasticsearch = require('elasticsearch');
 		var client = new elasticsearch.Client({
@@ -210,8 +210,8 @@ get_user_defined_metrics: function(es_server,  appid, execfile, experimentid){
 }, //end get_user_defined_metrics
 //****************************************************
 //This function is used to confirm that an user exists or not in the DataBase.
-get_component_timing: function(es_server,  appid, execfile, experimentid){
-	const my_index = appid+'_'+ execfile;
+get_component_timing: function(es_server, appid, taskid, experimentid){
+	const my_index = appid+'_'+ taskid;
 	return new Promise( (resolve,reject) => {
 		var elasticsearch = require('elasticsearch');
 		var client = new elasticsearch.Client({
@@ -236,11 +236,11 @@ get_component_timing: function(es_server,  appid, execfile, experimentid){
 			}
 		});
 	});
-}, //end get_component_timing 
+}, //end get_component_timing
 //****************************************************
 //This function is used to confirm that an user exists or not in the DataBase.
-get_exp_stats: function(es_server,  appid, execfile, experimentid){
-	const my_index = appid+'_'+ execfile;
+get_exp_stats: function(es_server, appid, taskid, experimentid){
+	const my_index = appid+'_'+ taskid;
 	const my_type = experimentid;
 	return new Promise( (resolve,reject) => {
 		var elasticsearch = require('elasticsearch');
@@ -315,8 +315,8 @@ get_exp_stats: function(es_server,  appid, execfile, experimentid){
 
 //****************************************************
 //This function is used to confirm that an user exists or not in the DataBase.
-count_exp_metrics: function(es_server,  appid, execfile, experimentid){
-	const my_index = appid+'_'+ execfile;
+count_exp_metrics: function(es_server, appid, taskid, experimentid){
+	const my_index = appid+'_'+ taskid;
 	return new Promise( (resolve,reject) => {
 		var elasticsearch = require('elasticsearch');
 		var client = new elasticsearch.Client({
@@ -355,8 +355,8 @@ count_exp_metrics: function(es_server,  appid, execfile, experimentid){
 //****************************************************
 
 //This function is used to confirm that an user exists or not in the DataBase.
-count_search_agg_id: function(es_server,  appid, execfile){
-	const my_index = appid+'_'+ execfile;
+count_search_agg_id: function(es_server, appid, taskid){
+	const my_index = appid+'_'+ taskid;
 	return new Promise( (resolve,reject) => {
 		var elasticsearch = require('elasticsearch');
 		var client = new elasticsearch.Client({
@@ -391,10 +391,10 @@ count_search_agg_id: function(es_server,  appid, execfile){
 			}
 		});
 	});
-}, //end query_count_exec_id
+}, //end count_search_agg_id
 //****************************************************
 //This function is used to confirm that an user exists or not in the DataBase.
-query_search_agg_id: function(es_server,  appid, exec_id){
+query_search_agg_id: function(es_server, appid, exec_id){
 	const my_index = appid+'_'+ exec_id;
 	return new Promise( (resolve,reject) => {
 		var elasticsearch = require('elasticsearch');
@@ -424,7 +424,7 @@ query_search_agg_id: function(es_server,  appid, exec_id){
 			}
 		});
 	});
-}, //end query_count_exec_id
+}, //end query_search_agg_id
 //****************************************************
 //This function is used to confirm that an user exists or not in the DataBase.
 query_count_exec_id: function(es_server, my_index, exec_id){ 
@@ -454,15 +454,15 @@ query_count_exec_id: function(es_server, my_index, exec_id){
 					resolve (response.count);//size
 				}else{
 					resolve (0);//size
-				} 
+				}
 			});
 		}
 	});
 }, //end query_count_exec_id
 //****************************************************
 //This function is used to confirm that an user exists or not in the DataBase.
-query_count_exec: function(es_server, my_index, app){ 
-	const my_type = 'executions_status' ;
+query_count_exec: function(es_server, my_index, app){
+	const my_type = 'executions_status';
 	return new Promise( (resolve,reject) => {
 		var elasticsearch = require('elasticsearch');
 		var client = new elasticsearch.Client({
@@ -471,25 +471,25 @@ query_count_exec: function(es_server, my_index, app){
 		});
 		if(app==undefined){
 			resolve(0);
-		}else if(app.length==0){ 
+		}else if(app.length==0){
 			client.count({
 				index: my_index,
-				type: my_type, 
+				type: my_type,
 				body:{"query":{"match_all": {} }}
 			}, function(error, response) {
-				if (error) { 
+				if (error) {
 					reject (error);
 				}
 				if (response.count !== undefined) {
 					resolve (response.count);//size
 				}else{
 					resolve (0);//size
-				} 
+				}
 			});
 		}else{
 			client.count({
 				index: my_index,
-				type: my_type, 
+				type: my_type,
 				body: {
 					"query":{"bool":{"must":[
 						{"match_phrase":{"app": app }}, {"term":{"app_length": app.length}}
@@ -503,7 +503,7 @@ query_count_exec: function(es_server, my_index, app){
 					resolve (response.count);//size
 				}else{
 					resolve (0);//size
-				} 
+				}
 			});
 		}
 	});
@@ -518,7 +518,7 @@ query_exec: function(es_server, my_index, bodyquery, pretty) {
 			log: 'error'
 		});
 		var result="";
-		var item = ""; 
+		var item = "";
 		client.search({
 			index: my_index,
 			type: my_type,
@@ -534,9 +534,9 @@ query_exec: function(es_server, my_index, bodyquery, pretty) {
 					if(result!=""){
 						result+=",";
 					}
-					if((pretty=="true")||(pretty=="TRUE")){ 
+					if((pretty=="true")||(pretty=="TRUE")){
 						result+=" "+(JSON.stringify(item, null, 4));
-					}else{ 
+					}else{
 						result+=" "+(JSON.stringify(item));
 					}
 				});
@@ -544,6 +544,6 @@ query_exec: function(es_server, my_index, bodyquery, pretty) {
 			resolve("{\"hits\" :["+result+"]}");
 		});
 	});
-}//end query_exec 
-	
+}//end query_exec
+
 }//end module.exports
