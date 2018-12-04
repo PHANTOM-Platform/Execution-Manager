@@ -7,7 +7,7 @@ Server which keeps track of the Status of the Users' APPs
 ## 1.- Introduction
 The PHANTOM Execution Manager server is composed of two components: a web server and a data storage system. 
 The web server provides various functionalities for data query and data analysis via RESTful APIs with documents in JSON format. 
-The server's URL is "http://localhost:8600" by default.
+The server's URL is "http://localhost:8700" by default.
 
 The Execution Manager process the collected data by the Monitoring-Server.
 
