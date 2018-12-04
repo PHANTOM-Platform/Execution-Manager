@@ -123,7 +123,7 @@ You can use the following command to verify if the database and the server are r
 Test of the Nodejs Front-end running service:
 
 ```bash
-curl http://localhost:8600;
+curl http://localhost:8700;
 ```
 
 Test if the Front-end has access to the Elasticsearch DataBase Server.
