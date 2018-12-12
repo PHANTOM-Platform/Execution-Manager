@@ -88,16 +88,16 @@
 	curl -s -H "Authorization: OAuth ${mytoken}" -XGET ${server}:${execmanager_port}/verifytoken;
 # 12. ################## TEST OF register new execution ######## 
 	echo -e "\n${LIGHT_BLUE}";
-	echo "curl -s -H \"Authorization: OAuth \${mytoken}\" -H \"Content-Type: multipart/form-data\" -XPOST -F \"UploadJSON=@../web/execstatus.json\" http://${server}:${execmanager_port}/register_new_exec;";
+	echo "curl -s -H \"Authorization: OAuth \${mytoken}\" -H \"Content-Type: multipart/form-data\" -XPOST -F \"UploadJSON=@../web-execmanager/execstatus.json\" http://${server}:${execmanager_port}/register_new_exec;";
 	read -p $'Press [Enter] key to register_new_exec'; echo -e "${NO_COLOUR}";
-	curl -s -H "Authorization: OAuth ${mytoken}" -H "Content-Type: multipart/form-data" -XPOST -F "UploadJSON=@../web/execstatus.json" http://${server}:${execmanager_port}/register_new_exec;
+	curl -s -H "Authorization: OAuth ${mytoken}" -H "Content-Type: multipart/form-data" -XPOST -F "UploadJSON=@../web-execmanager/execstatus.json" http://${server}:${execmanager_port}/register_new_exec;
 	#We sync, because it may start the next command before this operation completes.
 	curl -s -XGET ${server}:${execmanager_port}/_flush > /dev/null;
 # 12. ################## TEST OF UPDATE a execution ######## 
 	echo -e "\n${LIGHT_BLUE}";
-	echo "curl -s -H \"Authorization: OAuth \${mytoken}\" -H \"Content-Type: multipart/form-data\" -XPOST -F \"UploadJSON=@../web/execstatus_mod.json\" http://${server}:${execmanager_port}/update_exec;";
+	echo "curl -s -H \"Authorization: OAuth \${mytoken}\" -H \"Content-Type: multipart/form-data\" -XPOST -F \"UploadJSON=@../web-execmanager/execstatus_mod.json\" http://${server}:${execmanager_port}/update_exec;";
 	read -p $'Press [Enter] key to update_exec'; echo -e "${NO_COLOUR}";
-	curl -s -H "Authorization: OAuth ${mytoken}" -H "Content-Type: multipart/form-data" -XPOST -F "UploadJSON=@../web/execstatus_mod.json" http://${server}:${execmanager_port}/update_exec;
+	curl -s -H "Authorization: OAuth ${mytoken}" -H "Content-Type: multipart/form-data" -XPOST -F "UploadJSON=@../web-execmanager/execstatus_mod.json" http://${server}:${execmanager_port}/update_exec;
 	#We sync, because it may start the next command before this operation completes.
 	curl -s -XGET ${server}:${execmanager_port}/_flush > /dev/null;
 # 17. ######## TEST OF Query for a execution ######## 
