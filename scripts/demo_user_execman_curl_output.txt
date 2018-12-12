@@ -1,0 +1,237 @@
+Checking Exec MANAGER server ...
+Checking Response on port 8700 ...
+Done. Response successfully found on port 8700.
+
+Checking ElasticSearch ...
+Done. Response successfully found on ElasticSearch-server address.
+
+[1;34m
+curl -s -H "Content-Type: text/plain" -XGET http://localhost:8700/login?email="montana@abc.com"\&pw="new" --output token.txt"
+[0m
+[1;34m
+mytoken=`cat token.txt`; echo ${mytoken}
+[0meyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtb250YW5hQGFiYy5jb20iLCJpYXQiOjE1MzYzMjI0ODgsImV4cCI6MTUzODkxNDQ4OH0.7qzP6hVRJmOJG-9GBqdjXPAs4He6K-KVscUSa1Pv_OU
+
+[1;34m
+curl -s -H "Authorization: OAuth ${mytoken}" -XGET localhost:8700/verifytoken
+[0mThe token is valid !!!.
+
+[1;34m
+curl -s -H "Authorization: OAuth ${mytoken}" -H "Content-Type: multipart/form-data" -XPOST -F "UploadJSON=@../web/execstatus.json" http://localhost:8700/register_new_exec;
+[0m
+[ERROR] Can not register as new executions_status, because there is an alredy registered executions_status with that name
+
+[1;34m
+curl -s -H "Authorization: OAuth ${mytoken}" -H "Content-Type: multipart/form-data" -XPOST -F "UploadJSON=@../web/execstatus_mod.json" http://localhost:8700/update_exec;
+[0m
+Succeed.
+[1;34m
+Now only QUERY on the filepath
+curl -s -H "Authorization: OAuth ${mytoken}" -XGET http://localhost:8700/query_exec?app="HPC%20USE%20CASE"
+[0m
+{"hits" :[ {"app":"HPC USE CASE","app_length":12,"device":"HLRS Raspberry pi3","start_timestamp":"2018-04-10T13:23:00.000","energy":44.55,"device_length":18,"start_timestamp_length":23}]}
+
+[1;34m
+Now only QUERY on the filepath, we EXPLICITLY provide the query
+curl -s -H "Authorization: OAuth ${mytoken}" -H "Content-Type: multipart/form-data" -XGET http://localhost:8700/es_query_exec?QueryBody="\{\"query\":\{\"bool\":\{\"must\":\[\{\"match\":\{\"app\":\"HPC%20USE%20CASE\"\}\}\]\}\}\}"
+[0m{"hits" :[ {"app":"HPC USE CASE","app_length":12,"device":"HLRS Raspberry pi3","start_timestamp":"2018-04-10T13:23:00.000","energy":44.55,"device_length":18,"start_timestamp_length":23}]}
+
+[1;34m
+TEST get_component_timing
+curl -s -H "Authorization: OAuth eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtb250YW5hQGFiYy5jb20iLCJpYXQiOjE1MzYzMjI0ODgsImV4cCI6MTUzODkxNDQ4OH0.7qzP6hVRJmOJG-9GBqdjXPAs4He6K-KVscUSa1Pv_OU" -H "Content-Type: multipart/form-data" -XGET http://localhost:8700/get_component_timing?appid="demo"\&taskid="pthread-example"
+[0m
+
+400: Bad Request, empty parameter.
+
+[1;34m
+TEST count_executions
+curl -s -H "Authorization: OAuth eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtb250YW5hQGFiYy5jb20iLCJpYXQiOjE1MzYzMjI0ODgsImV4cCI6MTUzODkxNDQ4OH0.7qzP6hVRJmOJG-9GBqdjXPAs4He6K-KVscUSa1Pv_OU" -H "Content-Type: multipart/form-data" -XGET http://localhost:8700/count_executions?appid="demo"\&taskid="pthread-example"
+[0m
+1
+[1;34m
+TEST get_user_defined_metrics
+curl -s -H "Authorization: OAuth eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtb250YW5hQGFiYy5jb20iLCJpYXQiOjE1MzYzMjI0ODgsImV4cCI6MTUzODkxNDQ4OH0.7qzP6hVRJmOJG-9GBqdjXPAs4He6K-KVscUSa1Pv_OU" -H "Content-Type: multipart/form-data" -XGET http://localhost:8700/get_user_defined_metrics?appid="demo"\&taskid="pthread-example"
+[0m
+
+400: Bad Request, empty parameter.
+
+[1;34m
+TEST get_user_defined_metrics
+curl -s -H "Authorization: OAuth eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtb250YW5hQGFiYy5jb20iLCJpYXQiOjE1MzYzMjI0ODgsImV4cCI6MTUzODkxNDQ4OH0.7qzP6hVRJmOJG-9GBqdjXPAs4He6K-KVscUSa1Pv_OU" -H "Content-Type: multipart/form-data" -XGET http://localhost:8700/get_user_defined_metrics?appid="demo"\&taskid="pthread-example"
+[0m
+{
+    "total": 4322,
+    "max_score": 1.714418,
+    "hits": [
+        {
+            "_index": "demo_pthread-example",
+            "_type": "AWU87m3quRkaX6JeceE9",
+            "_id": "AWU87pOLuRkaX6Jeces3",
+            "_score": 1.714418,
+            "_source": {
+                "TaskID": "pthread-example",
+                "type": "user_defined",
+                "host": "node01",
+                "local_timestamp": "2018-08-15T11:32:57.069",
+                "runid": "2018-08-15T11:32:52.242",
+                "component_name": "component_b",
+                "metric_time": "5255203367648.0",
+                "number_of_blocks": 5268,
+                "server_timestamp": "2018-08-15T11:33:12.970"
+            }
+        },
+        {
+            "_index": "demo_pthread-example",
+            "_type": "AWU87m3quRkaX6JeceE9",
+            "_id": "AWU87pOLuRkaX6Jeces4",
+            "_score": 1.714418,
+            "_source": {
+                "TaskID": "pthread-example",
+                "type": "user_defined",
+                "host": "node01",
+                "local_timestamp": "2018-08-15T11:32:57.070",
+                "runid": "2018-08-15T11:32:52.242",
+                "component_name": "component_a",
+                "metric_time": "5255199110131.0",
+                "simple_function_comp_a": 38.256,
+                "server_timestamp": "2018-08-15T11:33:12.970"
+            }
+        },
+        {
+            "_index": "demo_pthread-example",
+            "_type": "AWU87m3quRkaX6JeceE9",
+            "_id": "AWU87pOLuRkaX6Jeces9",
+            "_score": 1.714418,
+            "_source": {
+                "TaskID": "pthread-example",
+                "type": "user_defined",
+                "host": "node01",
+                "local_timestamp": "2018-08-15T11:32:57.086",
+                "runid": "2018-08-15T11:32:52.242",
+                "component_name": "component_a",
+                "metric_time": "5255219661307.0",
+                "simple_function_comp_a": 38.604,
+                "server_timestamp": "2018-08-15T11:33:12.970"
+            }
+        },
+        {
+            "_index": "demo_pthread-example",
+            "_type": "AWU87m3quRkaX6JeceE9",
+            "_id": "AWU87pOpuRkaX6Jeces_",
+            "_score": 1.714418,
+            "_source": {
+                "TaskID": "pthread-example",
+                "type": "user_defined",
+                "host": "node01",
+                "local_timestamp": "2018-08-15T11:32:57.095",
+                "runid": "2018-08-15T11:32:52.242",
+                "component_name": "component_b",
+                "metric_time": "5255228237796.0",
+                "counter": 264,
+                "server_timestamp": "2018-08-15T11:33:13.000"
+            }
+        },
+        {
+            "_index": "demo_pthread-example",
+            "_type": "AWU87m3quRkaX6JeceE9",
+            "_id": "AWU87pOpuRkaX6JecetH",
+            "_score": 1.714418,
+            "_source": {
+                "TaskID": "pthread-example",
+                "type": "user_defined",
+                "host": "node01",
+                "local_timestamp": "2018-08-15T11:32:57.120",
+                "runid": "2018-08-15T11:32:52.242",
+                "component_name": "component_a",
+                "metric_time": "5255251675848.0",
+                "n_ships_found": 2675,
+                "server_timestamp": "2018-08-15T11:33:13.000"
+            }
+        },
+        {
+            "_index": "demo_pthread-example",
+            "_type": "AWU87m3quRkaX6JeceE9",
+            "_id": "AWU87pPBuRkaX6JecetN",
+            "_score": 1.714418,
+            "_source": {
+                "TaskID": "pthread-example",
+                "type": "user_defined",
+                "host": "node01",
+                "local_timestamp": "2018-08-15T11:32:57.138",
+                "runid": "2018-08-15T11:32:52.242",
+                "component_name": "component_a",
+                "metric_time": "5255273719937.0",
+                "n_ships_found": 2685,
+                "server_timestamp": "2018-08-15T11:33:13.024"
+            }
+        },
+        {
+            "_index": "demo_pthread-example",
+            "_type": "AWU87m3quRkaX6JeceE9",
+            "_id": "AWU87pPWuRkaX6JecetS",
+            "_score": 1.714418,
+            "_source": {
+                "TaskID": "pthread-example",
+                "type": "user_defined",
+                "host": "node01",
+                "local_timestamp": "2018-08-15T11:32:57.141",
+                "runid": "2018-08-15T11:32:52.242",
+                "component_name": "component_b",
+                "metric_time": "5255275619556.0",
+                "simple_function_comp_b": 20.012,
+                "server_timestamp": "2018-08-15T11:33:13.045"
+            }
+        },
+        {
+            "_index": "demo_pthread-example",
+            "_type": "AWU87m3quRkaX6JeceE9",
+            "_id": "AWU87pPWuRkaX6JecetX",
+            "_score": 1.714418,
+            "_source": {
+                "TaskID": "pthread-example",
+                "type": "user_defined",
+                "host": "node01",
+                "local_timestamp": "2018-08-15T11:32:57.152",
+                "runid": "2018-08-15T11:32:52.242",
+                "component_name": "component_b",
+                "metric_time": "5255287637236.0",
+                "counter": 268,
+                "server_timestamp": "2018-08-15T11:33:13.045"
+            }
+        },
+        {
+            "_index": "demo_pthread-example",
+            "_type": "AWU87m3quRkaX6JeceE9",
+            "_id": "AWU87pQCuRkaX6Jecetg",
+            "_score": 1.714418,
+            "_source": {
+                "TaskID": "pthread-example",
+                "type": "user_defined",
+                "host": "node01",
+                "local_timestamp": "2018-08-15T11:32:57.172",
+                "runid": "2018-08-15T11:32:52.242",
+                "component_name": "component_a",
+                "metric_time": "5255307606118.0",
+                "counter": 271,
+                "server_timestamp": "2018-08-15T11:33:13.089"
+            }
+        },
+        {
+            "_index": "demo_pthread-example",
+            "_type": "AWU87m3quRkaX6JeceE9",
+            "_id": "AWU87pQCuRkaX6Jecetj",
+            "_score": 1.714418,
+            "_source": {
+                "TaskID": "pthread-example",
+                "type": "user_defined",
+                "host": "node01",
+                "local_timestamp": "2018-08-15T11:32:57.174",
+                "runid": "2018-08-15T11:32:52.242",
+                "component_name": "component_b",
+                "metric_time": "5255309610611.0",
+                "counter": 270,
+                "server_timestamp": "2018-08-15T11:33:13.089"
+            }
+        }
+    ]
+}
