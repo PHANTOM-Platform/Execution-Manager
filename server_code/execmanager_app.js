@@ -371,39 +371,54 @@ function update_filename_path_on_json(JSONstring, project,source, filename, path
 	if (source == undefined) source="";
 	if (path == undefined) path="";
 	if (filename == undefined) filename="";
-	new_json['project']		=project;
-	new_json['project'+'_length']		=project.length;
-	new_json['source']		=source;
-	new_json['source'+'_length']		=source.length;	
-	new_json['path']		=path;
-	new_json['path'+'_length']	=path.length; //label can not contain points '.' !
-	new_json['filename']	=filename;
+	new_json['project']=project;
+	new_json['project'+'_length']=project.length;
+	new_json['source']=source;
+	new_json['source'+'_length']=source.length;
+	new_json['path']=path;
+	new_json['path'+'_length']=path.length; //label can not contain points '.' !
+	new_json['filename']=filename;
 	new_json['filename'+'_length']=filename.length;
 	for (var i = 0; i < keys.length; i++) {
 		var label=Object.getOwnPropertyNames(jsonobj)[i];
 		label=lowercase(label);
 		if((label != 'path') && (label != 'filename') && (label != 'path_length') && (label != 'filename_length'))
-			new_json[label]=jsonobj[keys[i]];	//add one property
+			new_json[label]=jsonobj[keys[i]]; //add one property
 		if( typeof jsonobj[keys[i]] == 'string'){
 			new_json[label+'_length']=jsonobj[keys[i]].length;
 		}
-	} 
+	}
 	new_json=(JSON.stringify(new_json));
 	return new_json;
 }
 
-function update_device_length_on_json(JSONstring, device){ 
-	var new_json = {  } 
+
+function find_id(JSONstring){
+	var response = "";
+	var jsonobj = JSON.parse(JSONstring);
+	var keys = Object.keys(jsonobj);
+	var found_id=0;
+	for (var i = 0; i < keys.length; i++) {
+		var label=Object.getOwnPropertyNames(jsonobj)[i];
+		label=lowercase(label);
+		if(label == '_id')
+			response = jsonobj[keys[i]];
+	}
+	return response;
+}
+
+function update_device_length_on_json(JSONstring, device){
+	var new_json = {  }
 	var jsonobj = JSON.parse(JSONstring);
 	var keys = Object.keys(jsonobj);
 	if (device == undefined) device="";
-	new_json['device']		=device;
-	new_json['device_length']	=device.length; 	
+	new_json['device']=device;
+	new_json['device_length']=device.length;
 	for (var i = 0; i < keys.length; i++) {
 		var label=Object.getOwnPropertyNames(jsonobj)[i];
 		label=lowercase(label);
 		if((label != 'device') && (label != 'device_length'))
-		new_json[label]=jsonobj[keys[i]];	//add one property
+		new_json[label]=jsonobj[keys[i]]; //add one property
 		if( typeof jsonobj[keys[i]] == 'string'){
 			new_json[label+'_length']=jsonobj[keys[i]].length;
 		}
@@ -417,13 +432,13 @@ function update_app_length_on_json(JSONstring, appname){
 	var jsonobj = JSON.parse(JSONstring);
 	var keys = Object.keys(jsonobj);
 	if (appname== undefined) appname="";
-	new_json['app']		=appname;
-	new_json['app_length']	=appname.length;
+	new_json['app']=appname;
+	new_json['app_length']=appname.length;
 	for (var i = 0; i < keys.length; i++) {
 		var label=Object.getOwnPropertyNames(jsonobj)[i];
 		label=lowercase(label);
 		if((label != 'app') && (label != 'app_length'))
-		new_json[label]=jsonobj[keys[i]];	//add one property
+		new_json[label]=jsonobj[keys[i]]; //add one property
 		if( typeof jsonobj[keys[i]] == 'string'){
 			new_json[label+'_length']=jsonobj[keys[i]].length;
 		}
@@ -431,6 +446,27 @@ function update_app_length_on_json(JSONstring, appname){
 	new_json=(JSON.stringify(new_json));
 	return new_json;
 }
+
+function update_execution_id_length_on_json(JSONstring, exec_id){
+	var new_json = {  }
+	var jsonobj = JSON.parse(JSONstring);
+	var keys = Object.keys(jsonobj);
+	if (exec_id== undefined) exec_id="";
+	for (var i = 0; i < keys.length; i++) {
+		var label=Object.getOwnPropertyNames(jsonobj)[i];
+		label=lowercase(label);
+		if((label != 'execution_id') && (label != 'execution_id_length'))
+		new_json[label]=jsonobj[keys[i]]; //add one property
+		if( typeof jsonobj[keys[i]] == 'string'){
+			new_json[label+'_length']=jsonobj[keys[i]].length;
+		}
+	}
+	new_json['execution_id'] =exec_id;
+	new_json['execution_id_length'] =exec_id.length;	
+	new_json=(JSON.stringify(new_json));
+	return new_json;
+}
+
 
 function get_source_project_json(JSONstring){
 	var myres = { source: "", project: "" };
@@ -443,7 +479,7 @@ function get_source_project_json(JSONstring){
 			myres.source=jsonobj[keys[i]];
 		if(label == 'project')
 			myres.project=jsonobj[keys[i]];
-	} 
+	}
 	return myres;
 }
 //*********************************************************************	
@@ -451,7 +487,7 @@ function get_source_project_json(JSONstring){
 // 	var Employee = {
 // 		firstname: "Pedro",
 // 		lastname: "Picapiedra"
-// 	} 
+// 	}
 // 	console.log(Employee);
 // 	delete Employee.firstname; //delete one property
 // 	var label='age';
@@ -476,7 +512,6 @@ function get_value_json(JSONstring,label){
 	return (myres);
 }
 
-
 function update_projectname_length_on_json(JSONstring, projectname){
 	var new_json = {  }
 	var jsonobj = JSON.parse(JSONstring);
@@ -488,7 +523,7 @@ function update_projectname_length_on_json(JSONstring, projectname){
 		var label=Object.getOwnPropertyNames(jsonobj)[i];
 		label=lowercase(label);
 		if((label != 'project') && (label != 'project_length'))
-		new_json[label]=jsonobj[keys[i]];	//add one property
+		new_json[label]=jsonobj[keys[i]]; //add one property
 		if( typeof jsonobj[keys[i]] == 'string'){
 			new_json[label+'_length']=jsonobj[keys[i]].length;
 		}
@@ -498,8 +533,8 @@ function update_projectname_length_on_json(JSONstring, projectname){
 }
 //**********************************************************
 function validate_parameter(parameter,label,currentdate,user,address){
-	var message_error = "DOWNLOAD Bad Request missing "+label;  
-	if (parameter != undefined){  
+	var message_error = "Bad Request missing "+label;
+	if (parameter != undefined){
 		parameter = remove_quotation_marks(parameter);
 		if (parameter.length > 0)
 			return(parameter);
@@ -814,11 +849,11 @@ app.get('/es_query_metadata', middleware.ensureAuthenticated, function(req, res)
 	});
 }); 
 //**********************************************************
-function register_exec(req, res,new_exec){
+function register_new_exec(req, res,new_exec){
 	"use strict";
 	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
 	var message_bad_request = "UPLOAD Bad Request missing ";
-	var resultlog ;
+	var resultlog;
 	if (!req.files){
 		res.writeHead(400, { 'Content-Type': contentType_text_plain });
 		res.end('No files were uploaded.');
@@ -834,34 +869,147 @@ function register_exec(req, res,new_exec){
 	//1 Parse the JSON and find the app name.
 	//2 If not existing in the db, then we will just register the JSON content
 	//3 if already exists, we need to merge with the existing entries, updating those fields redefined in the json
-	var jsontext =req.files.UploadJSON.data.toString('utf8');
+	var jsontext =req.files.UploadJSON.data.toString('utf8');	
 	var appname= get_value_json(jsontext,"app"); //(1) parsing the JSON
 	appname=appname.value;
+// 	var exec_id = get_value_json(jsontext,"execution_id"); //(1) parsing the JSON 
+// 	exec_id=exec_id.value;
 	jsontext =update_app_length_on_json(jsontext, appname); //this adds the field app.length
-	
+
 // 	console.log("send_exec_update_to_suscribers("+appname+")");
-	send_exec_update_to_suscribers(appname,jsontext);	
-	var result_count = ExecsModule.query_count_exec(es_servername + ":" + es_port,SERVERDB, appname);
-	result_count.then((resultResolve) => {
-		if(resultResolve==0){//new entry (2) we resister new entry
+// 	send_exec_update_to_suscribers(appname,jsontext);
+// 	var result_count = ExecsModule.query_count_exec_exec_id(es_servername + ":" + es_port,SERVERDB, exec_id);
+// 	result_count.then((resultResolve) => {
+// 		if(resultResolve==0){//new entry (2) we resister new entry
 			var result = ExecsModule.register_exec_json(es_servername + ":" + es_port,SERVERDB, jsontext);
 			result.then((resultResolve) => {
-				resultlog = LogsModule.register_log(es_servername + ":" + es_port,SERVERDB, 200,req.connection.remoteAddress,"Add task Succeed",currentdate,res.user);
+				//resultResolve.code = 200
+				resultlog = LogsModule.register_log(es_servername + ":" + es_port,SERVERDB, resultResolve.code,req.connection.remoteAddress,"Add task Succeed",currentdate,res.user);
+
+				var exec_id = find_id(resultResolve.text);
+			// 	jsontext =update_execution_id_length_on_json(jsontext, exec_id); TODO !!! need update the already registered json 				
+// 				console.log("send_exec_update_to_suscribers("+exec_id+")");
+				send_exec_update_to_suscribers(exec_id,jsontext);
 				res.writeHead(resultResolve.code, {"Content-Type": contentType_text_plain});
-				res.end(resultResolve.text + "\n", 'utf-8');
+				res.end(exec_id, 'utf-8');
 			},(resultReject)=> {
 				res.writeHead(resultReject.code, {"Content-Type": contentType_text_plain});
 				res.end(resultReject.text + "\n", 'utf-8');
-				resultlog = LogsModule.register_log( es_servername + ":" + es_port,SERVERDB,400,req.connection.remoteAddress,"Upload Error",currentdate,res.user);
+				resultlog = LogsModule.register_log(es_servername + ":" + es_port,SERVERDB,400,req.connection.remoteAddress,"Upload Error",currentdate,res.user);
+			});
+			return;
+// 		}else if (new_exec==true){
+// 			res.writeHead(400, {"Content-Type": contentType_text_plain});
+// 			res.end("[ERROR] Can not register as new executions_status, because there is an alredy registered executions_status with that exec_id, please try update command\n", 'utf-8');
+// 			return;
+// 		}else{ //already existing, (3.1) first we get the registered json
+// // 			var result_id = ExecsModule.find_exec_id(es_servername + ":" + es_port,SERVERDB, appname);
+// // 			result_id.then((result_idResolve) => {
+// 				var elasticsearch = require('elasticsearch');
+// 				var clientb = new elasticsearch.Client({
+// 					host: es_servername + ":" + es_port,
+// 					log: 'error'
+// 				});
+// 				var algo= new Promise( (resolve,reject) => {
+// 					var mergejson = JSON.parse(jsontext);
+// 					clientb.update({//index replaces the json in the DB with the new one
+// 						index: SERVERDB,
+// 						type: 'executions_status',
+// 						id: exec_id, //result_idResolve,
+// 						body: {doc: mergejson}
+// 					}, function(error, response) {
+// 						if(error){
+// 							reject (error);
+// 						} else if(!error){
+// 							var verify_flush = CommonModule.my_flush(req.connection.remoteAddress ,es_servername + ":" + es_port,SERVERDB);
+// 							verify_flush.then((resolve_result) => {
+// 								resolve ("Succeed" );
+// 							},(reject_result)=> {
+// 								reject ( );
+// 							});
+// 						}
+// 					});//end query client.index
+// 				});
+// 				algo.then((resultResolve) => {
+// 					res.writeHead(200, {"Content-Type": contentType_text_plain});
+// 					res.end( "Succeed updated." , 'utf-8');
+// 					return;
+// 				},(resultReject)=> {
+// 					res.writeHead(400, {"Content-Type": contentType_text_plain});
+// 					res.end( "error: "+resultReject, 'utf-8');
+// 					return;
+// 				});
+// // 			},(result_idReject)=> {
+// // 				res.writeHead(400, {"Content-Type": contentType_text_plain});
+// // 				res.end( "error requesting id", 'utf-8');
+// // 				return;
+// // 			});
+// 		}
+// 	},(resultReject)=> {
+// 		res.writeHead(400, {"Content-Type": contentType_text_plain});
+// 		res.end(resultReject + "\n", 'utf-8'); //error counting projects in the DB
+// 		resultlog = LogsModule.register_log( es_servername + ":" + es_port,SERVERDB,400,req.connection.remoteAddress,"ERROR on Update-register executions_status",currentdate,res.user);
+// 		return;
+// 	});
+}//register_new_exec
+
+//**********************************************************
+function register_exec(req, res,new_exec){
+	"use strict";
+	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
+	var message_bad_request = "UPLOAD Bad Request missing ";
+	var resultlog;
+	if (!req.files){
+		res.writeHead(400, { 'Content-Type': contentType_text_plain });
+		res.end('No files were uploaded.');
+		resultlog = LogsModule.register_log(es_servername + ":" + es_port,SERVERDB, 400,req.connection.remoteAddress,'No files were uploaded.',currentdate,res.user);
+		return;
+	}  
+	if (req.files.UploadJSON == undefined){
+		res.writeHead(400, { 'Content-Type': contentType_text_plain });
+		res.end('Error Json file not found.');
+		resultlog = LogsModule.register_log(es_servername + ":" + es_port,SERVERDB, 400,req.connection.remoteAddress,'Error Json file not found.',currentdate,res.user);
+		return;
+	}
+	//1 Parse the JSON and find the app name.
+	//2 If not existing in the db, then we will just register the JSON content
+	//3 if already exists, we need to merge with the existing entries, updating those fields redefined in the json
+	var jsontext =req.files.UploadJSON.data.toString('utf8'); //this must contain the field execution_id
+	var appname= get_value_json(jsontext,"app"); //(1) parsing the JSON
+	appname=appname.value;
+	jsontext =update_app_length_on_json(jsontext, appname); //this adds the field app.length
+	var exec_id = get_value_json(jsontext,"execution_id"); //(1) parsing the JSON
+	exec_id=exec_id.value;
+	jsontext =update_execution_id_length_on_json(jsontext, exec_id);
+	
+	var result_count = ExecsModule.query_count_exec_exec_id(es_servername + ":" + es_port,SERVERDB, exec_id);
+	result_count.then((resultResolve) => {
+		if(resultResolve==0){//new entry (2) we resister new entry
+			console.log("register_exec-B "+resultResolve );
+			var result = ExecsModule.register_exec_json(es_servername + ":" + es_port,SERVERDB, jsontext);
+			result.then((resultResolve) => {
+				//resultResolve.code = 200
+				resultlog = LogsModule.register_log(es_servername + ":" + es_port,SERVERDB, resultResolve.code,req.connection.remoteAddress,"Add task Succeed",currentdate,res.user);
+
+// 				var exec_id = find_id(resultResolve.text);
+			// 	jsontext =update_execution_id_length_on_json(jsontext, exec_id); TODO !!! need update the already registered json 				
+// 				console.log("send_exec_update_to_suscribers("+exec_id+")");
+				send_exec_update_to_suscribers(exec_id,jsontext);
+				res.writeHead(resultResolve.code, {"Content-Type": contentType_text_plain});
+				res.end(exec_id, 'utf-8');
+			},(resultReject)=> {
+				res.writeHead(resultReject.code, {"Content-Type": contentType_text_plain});
+				res.end(resultReject.text + "\n", 'utf-8');
+				resultlog = LogsModule.register_log(es_servername + ":" + es_port,SERVERDB,400,req.connection.remoteAddress,"Upload Error",currentdate,res.user);
 			});
 			return;
 		}else if (new_exec==true){
 			res.writeHead(400, {"Content-Type": contentType_text_plain});
-			res.end("[ERROR] Can not register as new executions_status, because there is an alredy registered executions_status with that name\n", 'utf-8');
+			res.end("[ERROR] Can not register as new executions_status, because there is an alredy registered executions_status with that exec_id, please try update command\n", 'utf-8');
 			return;
 		}else{ //already existing, (3.1) first we get the registered json
-			var result_id = ExecsModule.find_exec_id(es_servername + ":" + es_port,SERVERDB, appname);
-			result_id.then((result_idResolve) => {
+// 			var result_id = ExecsModule.find_exec_id(es_servername + ":" + es_port,SERVERDB, appname);
+// 			result_id.then((result_idResolve) => {
 				var elasticsearch = require('elasticsearch');
 				var clientb = new elasticsearch.Client({
 					host: es_servername + ":" + es_port,
@@ -872,13 +1020,13 @@ function register_exec(req, res,new_exec){
 					clientb.update({//index replaces the json in the DB with the new one
 						index: SERVERDB,
 						type: 'executions_status',
-						id: result_idResolve,
+						id: exec_id, //result_idResolve,
 						body: {doc: mergejson}
 					}, function(error, response) {
 						if(error){
 							reject (error);
 						} else if(!error){
-							var verify_flush = CommonModule.my_flush( req.connection.remoteAddress ,es_servername + ":" + es_port,SERVERDB);
+							var verify_flush = CommonModule.my_flush(req.connection.remoteAddress ,es_servername + ":" + es_port,SERVERDB);
 							verify_flush.then((resolve_result) => {
 								resolve ("Succeed" );
 							},(reject_result)=> {
@@ -888,19 +1036,21 @@ function register_exec(req, res,new_exec){
 					});//end query client.index
 				});
 				algo.then((resultResolve) => {
-					res.writeHead(420, {"Content-Type": contentType_text_plain});
-					res.end( "Succeed." , 'utf-8');
+					send_exec_update_to_suscribers(exec_id,jsontext);
+					res.writeHead(200, {"Content-Type": contentType_text_plain});
+// 					res.end( "Succeed updated." , 'utf-8');
+					res.end(exec_id, 'utf-8');
 					return;
 				},(resultReject)=> {
 					res.writeHead(400, {"Content-Type": contentType_text_plain});
 					res.end( "error: "+resultReject, 'utf-8');
 					return;
 				});
-			},(result_idReject)=> {
-				res.writeHead(400, {"Content-Type": contentType_text_plain});
-				res.end( "error requesting id", 'utf-8');
-				return;
-			});
+// 			},(result_idReject)=> {
+// 				res.writeHead(400, {"Content-Type": contentType_text_plain});
+// 				res.end( "error requesting id", 'utf-8');
+// 				return;
+// 			});
 		}
 	},(resultReject)=> {
 		res.writeHead(400, {"Content-Type": contentType_text_plain});
@@ -919,7 +1069,7 @@ function request_exec_id(appname){
 		}else{
 			"use strict";
 			var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
-			var result_count = ExecsModule.query_count_exec(es_servername + ":" + es_port,SERVERDB, appname);
+			var result_count = ExecsModule.query_count_exec_app_name(es_servername + ":" + es_port,SERVERDB, appname);
 			result_count.then((resultResolve) => {
 				if(resultResolve==0){//new entry (2) we resister new entry
 					var jsontext= {
@@ -959,12 +1109,13 @@ app.get('/get_user_defined_metrics', function(req, res) { //this is for the tabl
  	var appid		= CommonModule.remove_quotation_marks(find_param(req.body.appid, req.query.appid));
 	var execfile	= CommonModule.remove_quotation_marks(find_param(req.body.execfile, req.query.execfile));//deprecated, now we use taskid
 	var taskid	= CommonModule.remove_quotation_marks(find_param(req.bodytaskid, req.query.taskid));
+	var experimentid	= CommonModule.remove_quotation_marks(find_param(req.body.expid, req.query.expid));
 	
 	if((taskid==undefined) && (execfile != undefined))
-		taskid=exefile;
+		taskid=execfile;
 	if(execfile!=undefined){
 		if(taskid.length ==0 )
-			taskid=exefile;
+			taskid=execfile;
 	}
 	var experimentid	= CommonModule.remove_quotation_marks(find_param(req.body.execution, req.query.execution));
 	if((taskid==undefined) || (appid==undefined) || ( experimentid ==undefined ) ){
@@ -995,14 +1146,14 @@ app.get('/get_component_timing', function(req, res) { //this is for the table ex
 	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
  	var appid		= CommonModule.remove_quotation_marks(find_param(req.body.appid, req.query.appid));
 	var execfile	= CommonModule.remove_quotation_marks(find_param(req.body.execfile, req.query.execfile));//deprecated, now we use taskid
-	var experimentid	= CommonModule.remove_quotation_marks(find_param(req.body.execution, req.query.execution));
+	var experimentid	= CommonModule.remove_quotation_marks(find_param(req.body.expid, req.query.expid));
 	var taskid	= CommonModule.remove_quotation_marks(find_param(req.bodytaskid, req.query.taskid));
-	
+
 	if((taskid==undefined) && (execfile != undefined))
-		taskid=exefile;
+		taskid=execfile;
 	if(execfile!=undefined){
 		if(taskid.length ==0 )
-			taskid=exefile;
+			taskid=execfile;
 	}
 	if((taskid==undefined) || (appid==undefined) || ( experimentid ==undefined ) ){
 		res.writeHead(400, { 'Content-Type': contentType_text_plain });
@@ -1032,15 +1183,15 @@ app.get('/get_experiments_stats', function(req, res) { //this is for the table e
 	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
  	var appid		= CommonModule.remove_quotation_marks(find_param(req.body.appid, req.query.appid));
 	var execfile	= CommonModule.remove_quotation_marks(find_param(req.body.execfile, req.query.execfile));//deprecated, now we use taskid
-	var experimentid	= CommonModule.remove_quotation_marks(find_param(req.body.execution, req.query.execution));
+	var experimentid	= CommonModule.remove_quotation_marks(find_param(req.body.expid, req.query.expid));
 
 	var taskid	= CommonModule.remove_quotation_marks(find_param(req.bodytaskid, req.query.taskid));
 	
 	if((taskid==undefined) && (execfile != undefined))
-		taskid=exefile;
+		taskid=execfile;
 	if(execfile!=undefined){
 		if(taskid.length ==0 )
-			taskid=exefile;
+			taskid=execfile;
 	}
 	if((taskid==undefined) || (appid==undefined) || ( experimentid ==undefined ) ){
 		res.writeHead(400, { 'Content-Type': contentType_text_plain });
@@ -1074,10 +1225,10 @@ app.get('/count_experiments_metrics', function(req, res) { //this is for the tab
 	var taskid	= CommonModule.remove_quotation_marks(find_param(req.bodytaskid, req.query.taskid));
 	
 	if((taskid==undefined) && (execfile != undefined))
-		taskid=exefile;
+		taskid=execfile;
 	if(execfile!=undefined){
 		if(taskid.length ==0 )
-			taskid=exefile;
+			taskid=execfile;
 	}
 	if((taskid==undefined) || (appid==undefined) || ( experimentid ==undefined )  ){
 		res.writeHead(400, { 'Content-Type': contentType_text_plain });
@@ -1110,10 +1261,10 @@ app.get('/count_executions', function(req, res) { //this is for the table execut
 	var taskid	= CommonModule.remove_quotation_marks(find_param(req.bodytaskid, req.query.taskid));
 	
 	if((taskid==undefined) && (execfile != undefined))
-		taskid=exefile;
+		taskid=execfile;
 	if(execfile!=undefined){
 		if(taskid.length ==0 )
-			taskid=exefile;
+			taskid=execfile;
 	}
 	if((taskid==undefined) || (appid==undefined) ){
 		res.writeHead(400, { 'Content-Type': contentType_text_plain });
@@ -1149,10 +1300,10 @@ app.get('/list_executions', function(req, res) { //this is for the table executi
 	var taskid	= CommonModule.remove_quotation_marks(find_param(req.bodytaskid, req.query.taskid));
 	
 	if((taskid==undefined) && (execfile != undefined))
-		taskid=exefile;
+		taskid=execfile;
 	if(execfile!=undefined){
 		if(taskid.length ==0 )
-			taskid=exefile;
+			taskid=execfile;
 	}	
 	if((taskid==undefined) || (appid==undefined)  ){
 		res.writeHead(400, { 'Content-Type': contentType_text_plain });
@@ -1195,7 +1346,7 @@ app.get('/list_executions', function(req, res) { //this is for the table executi
 
 //********************************************************** 
 app.post('/register_new_exec',middleware.ensureAuthenticated, function(req, res) { //this is for the table executions_status, all the info is in a JSON file
-	register_exec(req, res,true);
+	register_new_exec(req, res,true);
 });
 //********************************************************** 
 app.post('/update_exec',middleware.ensureAuthenticated, function(req, res) { //this is for the table executions_status, all the info is in a JSON file, will update and merge with existing fields
@@ -1209,7 +1360,7 @@ app.get('/get_exec_list', function(req, res) {
 	var pretty		= find_param(req.body.pretty, req.query.pretty);
 	var execname	= CommonModule.remove_quotation_marks(find_param(req.body.app, req.query.app));
 	if (execname==undefined) execname="";
-	var result_count = ExecsModule.query_count_exec(es_servername + ":" + es_port,SERVERDB, execname);
+	var result_count = ExecsModule.query_count_exec_app_name(es_servername + ":" + es_port,SERVERDB, execname);
 	result_count.then((resultResolve) => {
 		if(resultResolve!=0){//new entry (2) we resister new entry
 			var result_id = ExecsModule.find_exec(es_servername + ":" + es_port,SERVERDB, execname,pretty);
@@ -1225,7 +1376,7 @@ app.get('/get_exec_list', function(req, res) {
 		}else{
 			res.writeHead(430, {"Content-Type": contentType_text_plain});	//not put 200 then webpage works
 			if(execname.length==0){
-				res.end("Empty list of Executed Apps" );
+				res.end("Empty list of Executed Apps");
 			}else{
 				res.end("Executions of the App \""+execname+"\" not found");
 			}
@@ -1252,7 +1403,7 @@ app.get('/query_exec',middleware.ensureAuthenticated, function(req, res) {
 		res.end("\n400: Bad Request, missing " + "app" + ".\n");
 		return;} 
 	//*******************************************  
-	var result_count = ExecsModule.query_count_exec(es_servername + ":" + es_port,SERVERDB, appname);
+	var result_count = ExecsModule.query_count_exec_app_name(es_servername + ":" + es_port,SERVERDB, appname);
 	result_count.then((resultResolve) => {
 		if(resultResolve==0){//new entry (2) we resister new entry
 			res.writeHead(200, {"Content-Type": contentType_text_plain});
@@ -1496,7 +1647,7 @@ function originIsAllowed(origin) {
 function consolelogjsonws(JSONstring ){
 	var jsonobj = JSON.parse(JSONstring);
 	var keys = Object.keys(jsonobj);
-	var myres = { user: "", project: "" , device: "" , execution: ""};
+	var myres = { user: "", project: "" , device: "" , execution_id: ""};
 	for (var i = 0; i < keys.length; i++) {
 		var labeltxt=Object.getOwnPropertyNames(jsonobj)[i];
 		labeltxt=lowercase(labeltxt);
@@ -1506,8 +1657,8 @@ function consolelogjsonws(JSONstring ){
 			myres.project = jsonobj[keys[i]];
 		}else if(labeltxt == 'device') {
 			myres.device = jsonobj[keys[i]];
-		}else if(labeltxt == 'execution') {
-			myres.execution = jsonobj[keys[i]];
+		}else if(labeltxt == 'execution_id') {
+			myres.execution_id = jsonobj[keys[i]];
 		}
 	}
 	return myres;
@@ -1563,16 +1714,17 @@ function send_device_update_to_suscribers(devicename,jsontext){
 	}}
 };
 
-function send_exec_update_to_suscribers(execname,jsontext){
+function send_exec_update_to_suscribers(exec_id,jsontext){
 	//*******************************************************************
-	if(execname != undefined){
-	if(execname.length > 0){
+	if(exec_id != undefined){
+	if(exec_id.length > 0){
 		//Now we find the suscribed users and we send copy
 		for (var u = 0; u < max_users; u++) {
 			var found_sucrip=false;
 			var i=0;
 			while(i< total_exec_suscriptions[u] && found_sucrip==false){
-				if(ExecSubscriptions[u,i]==execname){
+// 				console.log("suscriptions "+u+","+i+","+ExecSubscriptions[u,i]+ "=?"+exec_id);
+				if(ExecSubscriptions[u,i]==exec_id){
 					found_sucrip=true;
 				}else{
 					i++;
@@ -1580,7 +1732,7 @@ function send_exec_update_to_suscribers(execname,jsontext){
 			}
 			if(found_sucrip==true){
 				//we send the copy because we found the SUSCRIPTION
-				console.log("Forwarding to suscribed user: "+user_ids[u] + " Execution: "+ execname);
+				console.log("Forwarding to suscribed user: "+user_ids[u] + " Execution_id: "+ exec_id);
 				//user_conn[u].send("{\"project modified \":\""+execname+"\" }");
 				user_conn[u].send(jsontext);
 			}
@@ -1636,6 +1788,13 @@ app.ws('/', function(ws_connection, req) {
 		//compose the message describing the update of suscription 
 		var update_suscription_msg = {};
 		update_suscription_msg["user"]= user_input.user;
+		
+		
+	console.log( ' message ' + message );
+	console.log( ' exid ' + user_input.execution_id );
+
+	
+	
 		if(user_input.project != undefined)
 		if(user_input.project.length > 0){
 			update_suscription_msg ["suscribed_to_project"] = user_input.project;
@@ -1644,9 +1803,9 @@ app.ws('/', function(ws_connection, req) {
 		if(user_input.device.length > 0){
 			update_suscription_msg["suscribed_to_device"] = user_input.device;
 		}
-		if(user_input.execution != undefined)
-		if(user_input.execution.length > 0){
-			update_suscription_msg ["suscribed_to_execution"] = user_input.execution;
+		if(user_input.execution_id != undefined)
+		if(user_input.execution_id.length > 0){
+			update_suscription_msg ["suscribed_to_execution"] = user_input.execution_id;
 		}
 
 		console.log(JSON.stringify(update_suscription_msg));
@@ -1689,22 +1848,22 @@ app.ws('/', function(ws_connection, req) {
 		//**********************************************************************
 		//adding suscriptoin on EXECs:
 		found_susc=false;
-		if(user_input.execution!=undefined)
-		if(user_input.execution.length > 0){
+		if(user_input.execution_id!=undefined)
+		if(user_input.execution_id.length > 0){
 			for (var i = 0; i < total_exec_suscriptions[user_id]; i++)
-				if(ExecSubscriptions[user_id,i]==user_input.execution) {
+				if(ExecSubscriptions[user_id,i]==user_input.execution_id) {
 					found_susc=true;
 // 					console.log("found previous suscription adding at "+user_id+" "+i);
 				}
 			if(found_susc==false){
-				console.log("not found previous exec suscription adding at "+user_id+" "+total_exec_suscriptions[user_id]+ ": "+user_input.execution);
-				ExecSubscriptions[user_id,total_exec_suscriptions[user_id]]=user_input.execution;
+				console.log("not found previous exec suscription adding at "+user_id+" "+total_exec_suscriptions[user_id]+ ": "+user_input.execution_id);
+				ExecSubscriptions[user_id,total_exec_suscriptions[user_id]]=user_input.execution_id;
 				total_exec_suscriptions[user_id]=total_exec_suscriptions[user_id]+1;
 			}
 		}
 		user_input.project=undefined;
 		user_input.device=undefined;
-		user_input.execution=undefined;
+		user_input.execution_id=undefined;
 	});
 	// user disconnected
 	ws_connection.on('close', function(reasonCode, description) {
