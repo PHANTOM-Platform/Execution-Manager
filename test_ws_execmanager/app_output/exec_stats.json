@@ -1,0 +1,43 @@
+{
+	"app":"montanana_demo",
+	"device":"node01",
+	"execution_id":"AWhhtPR0JZWXaSaO3mtN",
+	"start_timestamp":"2018-03-22T21:02:15.333",
+	"end_timestamp": "2018-03-22T21:02:15.333",
+	"energy": "22.12",
+	"component_stats": [
+		{
+			"component_name": "main_compent",
+			"component_duration": "21058125465",
+			"component_start": "1547827573635.1",
+			"stats_cpu_usage_rate":{"count":"1081","min":"0.00","max":"0.00","avg":"0.00","sum":"0"},
+			"stats_ram_usage_rate":{"count":"1081","min":"0.00","max":"0.00","avg":"0.00","sum":"0"},
+			"stats_swap_usage_rate":{"count":"1081","min":"0.00","max":"0.00","avg":"0.00","sum":"0"},
+			"stats_write_bytes":{"count":"1081","min":"0","max":"0","avg":"0","sum":"0"},
+			"stats_read_bytes":{"count":"1081","min":"0","max":"0","avg":"0","sum":"0"},
+			"stats_send_bytes":{"count":"1081","min":"0","max":"0","avg":"0","sum":"0"}
+		},
+		{
+			"component_name": "component_a",
+			"component_duration": "1815843",
+			"component_start": "1547827552579.8",
+			"stats_cpu_usage_rate":{"count":"49","min":"0.00","max":"100.00","avg":"11.10","sum":"544"},
+			"stats_ram_usage_rate":{"count":"49","min":"0.00","max":"0.00","avg":"0.00","sum":"0"},
+			"stats_swap_usage_rate":{"count":"49","min":"0.00","max":"0.00","avg":"0.00","sum":"0"},
+			"stats_write_bytes":{"count":"49","min":"0","max":"0","avg":"0","sum":"0"},
+			"stats_read_bytes":{"count":"49","min":"0","max":"0","avg":"0","sum":"0"},
+			"stats_send_bytes":{"count":"49","min":"0","max":"0","avg":"0","sum":"0"}
+		},
+		{
+			"component_name": "component_b",
+			"component_duration": "11140779",
+			"component_start": "1547827552589.0",
+			"stats_cpu_usage_rate":{"count":"49","min":"0.00","max":"100.00","avg":"96.04","sum":"4706"},
+			"stats_ram_usage_rate":{"count":"49","min":"0.00","max":"0.00","avg":"0.00","sum":"0"},
+			"stats_swap_usage_rate":{"count":"49","min":"0.00","max":"0.00","avg":"0.00","sum":"0"},
+			"stats_write_bytes":{"count":"49","min":"0","max":"0","avg":"0","sum":"0"},
+			"stats_read_bytes":{"count":"49","min":"0","max":"0","avg":"0","sum":"0"},
+			"stats_send_bytes":{"count":"49","min":"0","max":"0","avg":"0","sum":"0"}
+		}
+	]
+}
