@@ -29,11 +29,11 @@ process.title = 'PHANTOM-Execution-Manager-server';
 	// This will be allocated in the home folder of the user running nodejs !! os.homedir()+File_Server_Path
 //******************** PACKAGES AND SOME GLOBAL VARIABLES ************
 	const express 		= require('express');
-	var app = express(); 
+	var app = express();
 	const fileUpload 	= require('express-fileupload');
 	var fs 				= require('fs');
 	var dateFormat 		= require('dateformat');
-	const os 			= require('os'); 
+	const os 			= require('os');
 	const contentType_text_plain = 'text/plain';
 //********************* SUPPORT JS file, with variable defs *********
 	const colours 		= require('./colours');
@@ -60,7 +60,7 @@ const devicemapping = {
 				"index": "analyzed"
 			},
 			"device_length":{
-				"type": "int"				
+				"type": "int"
 			},
 			"device_length": { // this field is registered for quering purposes
 				"type": "short"
@@ -94,7 +94,7 @@ const devicemapping = {
 				"type": "string", //Example "true" to hide in list, any other value will not hide the device
 				"index": "not_analyzed"
 			}
-		} 
+		}
 	}
 };
 
@@ -111,7 +111,7 @@ const statusmapping = { //the idea is keep a single entry, the evolution of load
 			"cpu_load": { // the used percentage of the cpu 
 				"type": "float"
 			},
-			"ram_load": {  // the used percentage of the available ram 
+			"ram_load": { // the used percentage of the available ram 
 				"type": "float"
 			},
 			"swap_load": { // the used percentage of the available swap
@@ -136,24 +136,24 @@ const statusmapping = { //the idea is keep a single entry, the evolution of load
 const execsmapping = {
 	"executions_status": {
 		"properties": {
-			"app": { // the used percentage of the cpu 
+			"app": { // the used percentage of the CPU
 				"type": "string", //Example: NA, Nvidia GTX960
 				"index": "analyzed"
 			},
 			"app_length":{
 				"type": "int"
 			},
-			"device": { // the used percentage of the cpu 
+			"device": { // the used percentage of the CPU
 				"type": "string", //Example: NA, Nvidia GTX960
 				"index": "analyzed"
 			},
-			"start_timestamp": { //  
+			"start_timestamp": { //
 				"type": "date",
 				"store": "yes",
 				"format": "yyyy-MM-dd'T'HH:mm:ss.SSS",
 				"index": "analyzed"
 			},
-			"end_timestamp": { //  
+			"end_timestamp": { //
 				"type": "date",
 				"store": "yes",
 				"format": "yyyy-MM-dd'T'HH:mm:ss.SSS",
@@ -187,10 +187,10 @@ const metadatamapping = {
 				"type": "string",
 				"index": "analyzed"
 			},
-			"filename_length": { 
+			"filename_length": {
 				"type": "short"
 			}
-		} 
+		}
 	}
 };
 const usersmapping = {
@@ -213,7 +213,7 @@ const usersmapping = {
 		}
 	}
 };
-const tokensmapping = { 
+const tokensmapping = {
 	"tokens":{
 		"properties": {
 			"user_id": {
@@ -234,7 +234,7 @@ const tokensmapping = {
 		}
 	}
 };
-const logsmapping = { 
+const logsmapping = {
 	"logs":{
 		"properties": {
 			"code": {
@@ -254,12 +254,12 @@ const logsmapping = {
 			}
 		}
 	}
-} ; 
+};
 	var expressWs 		= require('express-ws')(app);
 	var app = expressWs.app;
 //*******************************************************************
-//********************  VARIABLES FOR WSockets **********************
-	//*** STORAGE OF USERS
+//******************** VARIABLES FOR WSockets **********************
+//*** STORAGE OF USERS
 	const max_users=50;
 	var totalusers=0;
 	var user_ids = new Array(max_users );
@@ -272,9 +272,9 @@ const logsmapping = {
 	const max_projects= 100;
 	const max_mensages=40;
 	var totalmensages= [max_projects];
-	for (var i = 0; i < max_projects; i++) 
+	for (var i = 0; i < max_projects; i++)
 		totalmensages[i]=0;
-	var ProjectContents = new Array(max_projects,max_mensages); //10 projects,  stack of max_mensages contents
+	var ProjectContents = new Array(max_projects,max_mensages); //10 projects, stack of max_mensages contents
 	
 //*** STORAGE OF SUSCRIPTIONS
 	const max_suscrip=6;
@@ -295,7 +295,6 @@ const logsmapping = {
 	var ExecSubscriptions = new Array(max_users,max_suscrip); //stack of "max_suscrip" proj suscr for each user
 
 	var clients = [ ];// list of currently connected clients (users)
-
 //****************************************************
 //**********************************************************
 //This function removes double quotation marks if present at the beginning and the end of the input string
@@ -306,14 +305,13 @@ function remove_quotation_marks(input_string){
 	}
 	if(input_string.length>0){
 	if(input_string.charAt(input_string.length-1) === '"') {
-		input_string = input_string.substring(0, input_string.length - 1); 
+		input_string = input_string.substring(0, input_string.length - 1);
 	}}}
 	return (input_string);
-}	
-
+}
 
 function lowercase(input_string){
-	var result=""; 
+	var result="";
 	for (var j = 0; j < input_string.length; j++) {
 // 		input_string.replaceAt(j, character.toLowerCase());
         var charCode = input_string.charCodeAt(j);
@@ -326,9 +324,9 @@ function lowercase(input_string){
             // Append the lowercase character
             result += String.fromCharCode(charCode + 32);
         }
-	} 
+	}
 	return (result);
-}	
+}
 
 function is_defined(variable) {
 	return (typeof variable !== 'undefined');
@@ -462,7 +460,7 @@ function update_execution_id_length_on_json(JSONstring, exec_id){
 		}
 	}
 	new_json['execution_id'] =exec_id;
-	new_json['execution_id_length'] =exec_id.length;	
+	new_json['execution_id_length'] =exec_id.length;
 	new_json=(JSON.stringify(new_json));
 	return new_json;
 }
@@ -491,7 +489,7 @@ function get_source_project_json(JSONstring){
 // 	console.log(Employee);
 // 	delete Employee.firstname; //delete one property
 // 	var label='age';
-// 	Employee[label]="32";		//add one property
+// 	Employee[label]="32"; //add one property
 // 	console.log(Employee);
 // }
 //*********************************************************************
@@ -539,7 +537,7 @@ function validate_parameter(parameter,label,currentdate,user,address){
 		if (parameter.length > 0)
 			return(parameter);
 	}
-	resultlog = LogsModule.register_log(es_servername+":"+es_port,SERVERDB,400,address,message_error,currentdate, user );
+	resultlog = LogsModule.register_log(es_servername+":"+es_port,SERVERDB,400,address,message_error,currentdate, user);
 	return undefined;
 }
 
@@ -552,7 +550,7 @@ function retrieve_file(filePath,res){
 	switch (extname) {
 		case '.html':
 			contentType = 'text/html';
-			break;			
+			break;
 		case '.js':
 			contentType = 'text/javascript';
 			break;
@@ -582,7 +580,7 @@ function retrieve_file(filePath,res){
 			} else {
 				res.writeHead(500);
 				res.end('Sorry, check with the site admin for error: '+error.code+' ..\n');
-				res.end(); 
+				res.end();
 			}
 		} else {
 			res.writeHead(200, { 'Content-Type': contentType });
@@ -594,11 +592,11 @@ function retrieve_file(filePath,res){
 var middleware = require('./token-middleware');
 
 // Access to private content only if autenticated, using an authorization token
-app.get('/verifytoken',middleware.ensureAuthenticated, function(req, res) { 
-// 	console.log("   " +colours.FgYellow + colours.Bright + " request from IP:" + req.connection.remoteAddress + colours.Reset); 
-		var message = "The token is valid !!!.\n"
-			res.writeHead(200, { 'Content-Type': 'text/plain' });
-			res.end(message, 'utf-8');
+app.get('/verifytoken',middleware.ensureAuthenticated, function(req, res) {
+// 	console.log("   " +colours.FgYellow + colours.Bright + " request from IP:" + req.connection.remoteAddress + colours.Reset);
+	var message = "The token is valid !!!.\n"
+	res.writeHead(200, { 'Content-Type': 'text/plain' });
+	res.end(message, 'utf-8');
 } );
 //********************************************************** 
 app.use(bodyParser.json());
@@ -687,8 +685,8 @@ app.get('/query_metadata.html', function(req, res) {
 // Path only accesible when Authenticated
 app.get('/private',middleware.ensureAuthenticated, function(req, res) {
 	var message = "\n\nAccess to restricted content !!!.\n\n"
-		res.writeHead(200, { 'Content-Type': contentType_text_plain});
-		res.end(message, 'utf-8');
+	res.writeHead(200, { 'Content-Type': contentType_text_plain});
+	res.end(message, 'utf-8');
 });
 //**********************************************************
 app.get('/verify_es_connection', function(req, res) {
@@ -706,7 +704,7 @@ app.get('/verify_es_connection', function(req, res) {
 //**********************************************************
 app.get('/drop_db', function(req, res) {
 	"use strict";
-	var resultlog ;
+	var resultlog;
 	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
 	console.log("\n[LOG]: Deleting Database");
 	console.log("   " +colours.FgYellow + colours.Bright + " request from IP:" + req.connection.remoteAddress + colours.Reset);
@@ -716,76 +714,77 @@ app.get('/drop_db', function(req, res) {
 		res.end("\n403: FORBIDDEN access from external IP.\n");
 		var messagea = "Deleting Database FORBIDDEN access from external IP.";
 		resultlog = LogsModule.register_log(es_servername+":"+es_port,SERVERDB, 403,req.connection.remoteAddress,messagea,currentdate,"");
-		return ;
+		return;
 	}
-	var searching = MetadataModule.drop_db(es_servername+":"+es_port, SERVERDB );
-	searching.then((resultFind) => { 
+	var searching = MetadataModule.drop_db(es_servername+":"+es_port, SERVERDB);
+	searching.then((resultFind) => {
 		res.writeHead(200, {"Content-Type": contentType_text_plain});
-		res.end("200: "+resultFind+"\n"); 
+		res.end("200: "+resultFind+"\n");
 		//not register log here, because we can not register nothing after delete the DB !!!
 	},(resultReject)=> {
 // 		console.log("log: Bad Request: " + resultReject); 
 		res.writeHead(400, {"Content-Type": contentType_text_plain});
-		res.end("\n400: Bad Request "+resultReject+"\n"); 
+		res.end("\n400: Bad Request "+resultReject+"\n");
 		//not register log here, because the error can be due not existing DB to be drop.
 	} );
 });
+
 //this function registers a list of mappings with a recursive set of promises
 function register_next_mapping (arr_labels, arr_mappings, es_servername, es_port){
 	return new Promise( (resolve,reject) => {
-		var create_new_map = MetadataModule.new_mapping(es_servername+":"+es_port,SERVERDB, arr_labels[0], arr_mappings[0] );
+		var create_new_map = MetadataModule.new_mapping(es_servername+":"+es_port,SERVERDB, arr_labels[0], arr_mappings[0]);
 		create_new_map.then((resultFind) => {
 			arr_labels.shift(); //removes the first element of the array
 			arr_mappings.shift(); //removes the first element of the array
 			var next_result;
 			if(arr_labels.length >0 ){
-				next_result= register_next_mapping (arr_labels, arr_mappings, es_servername, es_port );
+				next_result= register_next_mapping (arr_labels, arr_mappings, es_servername, es_port);
 				next_result.then((next_resultFind) => {
 					resolve(next_resultFind);
-				},(next_resultReject)=> { 
+				},(next_resultReject)=> {
 					reject(next_resultReject);
-				} ); 
+				} );
 			}else{
 				resolve(resultFind);
-			} 
-		},(resultReject)=> { 
+			}
+		},(resultReject)=> {
 			reject(resultReject);
-		} ); 
+		});
 	});//end of promise
 };
 //**********************************************************
 app.get('/new_db', function(req, res) {
-	"use strict"; 
+	"use strict";
 	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
-	var create_new_db = MetadataModule.new_db(es_servername+":"+es_port,SERVERDB );
+	var create_new_db = MetadataModule.new_db(es_servername+":"+es_port,SERVERDB);
 	create_new_db.then((resultFind) => {
-		var arr_labels = [ 'metadata', 'users', 'tokens', 'logs', 'devices_status', 'devices', 'executions_status' ];
-		var arr_mappings = [ metadatamapping ,usersmapping, tokensmapping, logsmapping, statusmapping, devicemapping, execsmapping ];
-		var create_new_mappings =register_next_mapping (arr_labels, arr_mappings, es_servername, es_port ); 
-		create_new_mappings.then((resultFind_map) => { 
+		var arr_labels = [ 'metadata', 'users', 'tokens', 'logs', 'devices_status', 'devices', 'executions_status'];
+		var arr_mappings = [ metadatamapping ,usersmapping, tokensmapping, logsmapping, statusmapping, devicemapping, execsmapping];
+		var create_new_mappings =register_next_mapping (arr_labels, arr_mappings, es_servername, es_port);
+		create_new_mappings.then((resultFind_map) => {
 			res.writeHead(200, {"Content-Type": "application/json"});
-			res.end(resultFind_map+"\n"); 
+			res.end(resultFind_map+"\n");
 			var resultlog_map = LogsModule.register_log(es_servername+":"+es_port,SERVERDB, 200,req.connection.remoteAddress,"DB successfully created",currentdate,"");
-		},(resultReject_map)=> { 
+		},(resultReject_map)=> {
 			res.writeHead(400, {"Content-Type": contentType_text_plain});
 			res.end("\n400: Bad Request "+resultReject_map+"\n");
 			var resultlogb = LogsModule.register_log(es_servername+":"+es_port,SERVERDB, 400,req.connection.remoteAddress,"Bad Request "+resultReject_map,currentdate,"");
-		} );
-	},(resultReject)=> { 
+		});
+	},(resultReject)=> {
 		res.writeHead(400, {"Content-Type": contentType_text_plain});
 		res.end("\n400: Bad Request when creating DB "+resultReject+"\n");
 		var resultlogc = LogsModule.register_log(es_servername+":"+es_port,SERVERDB, 400,req.connection.remoteAddress,"Bad Request "+resultReject,currentdate,"");
-	} );
+	});
 });
 //**********************************************************
-app.get('/_flush', function(req, res) { 
-	var verify_flush = CommonModule.my_flush(req.connection.remoteAddress ,es_servername+':'+es_port, SERVERDB );
+app.get('/_flush', function(req, res) {
+	var verify_flush = CommonModule.my_flush(req.connection.remoteAddress ,es_servername+':'+es_port, SERVERDB);
 	verify_flush.then((resolve_result) => {
 		res.writeHead(resolve_result.code, {"Content-Type": contentType_text_plain});
 		res.end(resolve_result.text+"\n", 'utf-8');
 	},(reject_result)=> {
-		res.writeHead(reject_result.code, {"Content-Type": contentType_text_plain}); 
-		res.end(reject_result.text+"\n", 'utf-8'); 
+		res.writeHead(reject_result.code, {"Content-Type": contentType_text_plain});
+		res.end(reject_result.text+"\n", 'utf-8');
 	});
 });
 //******************************************************************************
@@ -847,7 +846,7 @@ app.get('/es_query_metadata', middleware.ensureAuthenticated, function(req, res)
 		resultlog = LogsModule.register_log(es_servername+":"+es_port,SERVERDB,400,req.connection.remoteAddress,"ES-QUERY METADATA BAD Request on query:"
 			+JSON.stringify(QueryBody),currentdate,res.user);
 	});
-}); 
+});
 //**********************************************************
 function register_new_exec(req, res,new_exec){
 	"use strict";
@@ -859,7 +858,7 @@ function register_new_exec(req, res,new_exec){
 		res.end('No files were uploaded.');
 		resultlog = LogsModule.register_log(es_servername + ":" + es_port,SERVERDB, 400,req.connection.remoteAddress,'No files were uploaded.',currentdate,res.user);
 		return;
-	}  
+	}
 	if (req.files.UploadJSON == undefined){
 		res.writeHead(400, { 'Content-Type': contentType_text_plain });
 		res.end('Error Json file not found.');
@@ -869,12 +868,13 @@ function register_new_exec(req, res,new_exec){
 	//1 Parse the JSON and find the app name.
 	//2 If not existing in the db, then we will just register the JSON content
 	//3 if already exists, we need to merge with the existing entries, updating those fields redefined in the json
-	var jsontext =req.files.UploadJSON.data.toString('utf8');	
+	var jsontext =req.files.UploadJSON.data.toString('utf8');
 	var appname= get_value_json(jsontext,"app"); //(1) parsing the JSON
 	appname=appname.value;
-// 	var exec_id = get_value_json(jsontext,"execution_id"); //(1) parsing the JSON 
+// 	var exec_id = get_value_json(jsontext,"execution_id"); //(1) parsing the JSON
 // 	exec_id=exec_id.value;
 	jsontext =update_app_length_on_json(jsontext, appname); //this adds the field app.length
+// 	jsontext =update_execution_id_length_on_json(jsontext, exec_id);
 
 // 	console.log("send_exec_update_to_suscribers("+appname+")");
 // 	send_exec_update_to_suscribers(appname,jsontext);
@@ -883,11 +883,10 @@ function register_new_exec(req, res,new_exec){
 // 		if(resultResolve==0){//new entry (2) we resister new entry
 			var result = ExecsModule.register_exec_json(es_servername + ":" + es_port,SERVERDB, jsontext);
 			result.then((resultResolve) => {
-				//resultResolve.code = 200
-				resultlog = LogsModule.register_log(es_servername + ":" + es_port,SERVERDB, resultResolve.code,req.connection.remoteAddress,"Add task Succeed",currentdate,res.user);
+				resultlog = LogsModule.register_log(es_servername + ":" + es_port,SERVERDB, 200,req.connection.remoteAddress,"Add task Succeed",currentdate,res.user);
 
 				var exec_id = find_id(resultResolve.text);
-			// 	jsontext =update_execution_id_length_on_json(jsontext, exec_id); TODO !!! need update the already registered json 				
+			// 	jsontext =update_execution_id_length_on_json(jsontext, exec_id); TODO !!! need update the already registered json
 // 				console.log("send_exec_update_to_suscribers("+exec_id+")");
 				send_exec_update_to_suscribers(exec_id,jsontext);
 				res.writeHead(resultResolve.code, {"Content-Type": contentType_text_plain});
@@ -903,8 +902,8 @@ function register_new_exec(req, res,new_exec){
 // 			res.end("[ERROR] Can not register as new executions_status, because there is an alredy registered executions_status with that exec_id, please try update command\n", 'utf-8');
 // 			return;
 // 		}else{ //already existing, (3.1) first we get the registered json
-// // 			var result_id = ExecsModule.find_exec_id(es_servername + ":" + es_port,SERVERDB, appname);
-// // 			result_id.then((result_idResolve) => {
+// 			var result_id = ExecsModule.find_exec_id(es_servername + ":" + es_port,SERVERDB, appname);
+// 			result_id.then((result_idResolve) => {
 // 				var elasticsearch = require('elasticsearch');
 // 				var clientb = new elasticsearch.Client({
 // 					host: es_servername + ":" + es_port,
@@ -932,27 +931,26 @@ function register_new_exec(req, res,new_exec){
 // 				});
 // 				algo.then((resultResolve) => {
 // 					res.writeHead(200, {"Content-Type": contentType_text_plain});
-// 					res.end( "Succeed updated." , 'utf-8');
+// 					res.end("Succeed updated.", 'utf-8');
 // 					return;
 // 				},(resultReject)=> {
 // 					res.writeHead(400, {"Content-Type": contentType_text_plain});
-// 					res.end( "error: "+resultReject, 'utf-8');
+// 					res.end("error: "+resultReject, 'utf-8');
 // 					return;
 // 				});
-// // 			},(result_idReject)=> {
-// // 				res.writeHead(400, {"Content-Type": contentType_text_plain});
-// // 				res.end( "error requesting id", 'utf-8');
-// // 				return;
-// // 			});
+// 			},(result_idReject)=> {
+// 				res.writeHead(400, {"Content-Type": contentType_text_plain});
+// 				res.end("error requesting id", 'utf-8');
+// 				return;
+// 			});
 // 		}
 // 	},(resultReject)=> {
 // 		res.writeHead(400, {"Content-Type": contentType_text_plain});
 // 		res.end(resultReject + "\n", 'utf-8'); //error counting projects in the DB
-// 		resultlog = LogsModule.register_log( es_servername + ":" + es_port,SERVERDB,400,req.connection.remoteAddress,"ERROR on Update-register executions_status",currentdate,res.user);
+// 		resultlog = LogsModule.register_log(es_servername + ":" + es_port,SERVERDB,400,req.connection.remoteAddress,"ERROR on Update-register executions_status",currentdate,res.user);
 // 		return;
 // 	});
 }//register_new_exec
-
 //**********************************************************
 function register_exec(req, res,new_exec){
 	"use strict";
@@ -964,7 +962,7 @@ function register_exec(req, res,new_exec){
 		res.end('No files were uploaded.');
 		resultlog = LogsModule.register_log(es_servername + ":" + es_port,SERVERDB, 400,req.connection.remoteAddress,'No files were uploaded.',currentdate,res.user);
 		return;
-	}  
+	}
 	if (req.files.UploadJSON == undefined){
 		res.writeHead(400, { 'Content-Type': contentType_text_plain });
 		res.end('Error Json file not found.');
@@ -974,25 +972,22 @@ function register_exec(req, res,new_exec){
 	//1 Parse the JSON and find the app name.
 	//2 If not existing in the db, then we will just register the JSON content
 	//3 if already exists, we need to merge with the existing entries, updating those fields redefined in the json
-	var jsontext =req.files.UploadJSON.data.toString('utf8'); //this must contain the field execution_id
+	var jsontext =req.files.UploadJSON.data.toString('utf8');//this must contain the field execution_id
 	var appname= get_value_json(jsontext,"app"); //(1) parsing the JSON
 	appname=appname.value;
 	jsontext =update_app_length_on_json(jsontext, appname); //this adds the field app.length
 	var exec_id = get_value_json(jsontext,"execution_id"); //(1) parsing the JSON
 	exec_id=exec_id.value;
 	jsontext =update_execution_id_length_on_json(jsontext, exec_id);
-	
+
 	var result_count = ExecsModule.query_count_exec_exec_id(es_servername + ":" + es_port,SERVERDB, exec_id);
 	result_count.then((resultResolve) => {
 		if(resultResolve==0){//new entry (2) we resister new entry
-			console.log("register_exec-B "+resultResolve );
 			var result = ExecsModule.register_exec_json(es_servername + ":" + es_port,SERVERDB, jsontext);
 			result.then((resultResolve) => {
-				//resultResolve.code = 200
-				resultlog = LogsModule.register_log(es_servername + ":" + es_port,SERVERDB, resultResolve.code,req.connection.remoteAddress,"Add task Succeed",currentdate,res.user);
-
+				resultlog = LogsModule.register_log(es_servername + ":" + es_port,SERVERDB, 200,req.connection.remoteAddress,"Add task Succeed",currentdate,res.user);
 // 				var exec_id = find_id(resultResolve.text);
-			// 	jsontext =update_execution_id_length_on_json(jsontext, exec_id); TODO !!! need update the already registered json 				
+			// 	jsontext =update_execution_id_length_on_json(jsontext, exec_id); TODO !!! need update the already registered json
 // 				console.log("send_exec_update_to_suscribers("+exec_id+")");
 				send_exec_update_to_suscribers(exec_id,jsontext);
 				res.writeHead(resultResolve.code, {"Content-Type": contentType_text_plain});
@@ -1036,19 +1031,20 @@ function register_exec(req, res,new_exec){
 					});//end query client.index
 				});
 				algo.then((resultResolve) => {
+	console.log("send_exec_update_to_suscribers("+exec_id+")");
 					send_exec_update_to_suscribers(exec_id,jsontext);
 					res.writeHead(200, {"Content-Type": contentType_text_plain});
-// 					res.end( "Succeed updated." , 'utf-8');
+// 					res.end("Succeed updated.", 'utf-8');
 					res.end(exec_id, 'utf-8');
 					return;
 				},(resultReject)=> {
 					res.writeHead(400, {"Content-Type": contentType_text_plain});
-					res.end( "error: "+resultReject, 'utf-8');
+					res.end("error: "+resultReject, 'utf-8');
 					return;
 				});
 // 			},(result_idReject)=> {
 // 				res.writeHead(400, {"Content-Type": contentType_text_plain});
-// 				res.end( "error requesting id", 'utf-8');
+// 				res.end("error requesting id", 'utf-8');
 // 				return;
 // 			});
 		}
@@ -1074,7 +1070,7 @@ function request_exec_id(appname){
 				if(resultResolve==0){//new entry (2) we resister new entry
 					var jsontext= {
 						"app": appname,
-						"app_length":  appname.length,
+						"app_length": appname.length,
 						"hide": "false"
 					};
 					var result = ExecsModule.register_exec_json(es_servername + ":" + es_port,SERVERDB, jsontext);
@@ -1109,15 +1105,15 @@ app.get('/get_user_defined_metrics', function(req, res) { //this is for the tabl
  	var appid		= CommonModule.remove_quotation_marks(find_param(req.body.appid, req.query.appid));
 	var execfile	= CommonModule.remove_quotation_marks(find_param(req.body.execfile, req.query.execfile));//deprecated, now we use taskid
 	var taskid	= CommonModule.remove_quotation_marks(find_param(req.bodytaskid, req.query.taskid));
-	var experimentid	= CommonModule.remove_quotation_marks(find_param(req.body.expid, req.query.expid));
-	
+// 	var experimentid = CommonModule.remove_quotation_marks(find_param(req.body.expid, req.query.expid));
+
 	if((taskid==undefined) && (execfile != undefined))
 		taskid=execfile;
 	if(execfile!=undefined){
-		if(taskid.length ==0 )
+		if(taskid.length ==0)
 			taskid=execfile;
 	}
-	var experimentid	= CommonModule.remove_quotation_marks(find_param(req.body.execution, req.query.execution));
+	var experimentid = CommonModule.remove_quotation_marks(find_param(req.body.execution, req.query.execution));
 	if((taskid==undefined) || (appid==undefined) || ( experimentid ==undefined ) ){
 		res.writeHead(400, { 'Content-Type': contentType_text_plain });
 		res.end("\n400: Bad Request, missing " + "parameter" + ".\n");
@@ -1135,7 +1131,7 @@ app.get('/get_user_defined_metrics', function(req, res) { //this is for the tabl
 		},(resultReject)=> {
 			res.writeHead(400, {"Content-Type": contentType_text_plain});
 			res.end("ERROR on counting list of executed apps, the appid+taskid \""+ appid+"_"+taskid+"\" may not be registered\n" + resultReject + "\n", 'utf-8'); //error counting projects in the DB
-			var resultlog = LogsModule.register_log( es_servername + ":" + es_port,SERVERDB,400,req.connection.remoteAddress,"ERROR on counting list of executed apps",currentdate,res.user);
+			var resultlog = LogsModule.register_log(es_servername + ":" + es_port,SERVERDB,400,req.connection.remoteAddress,"ERROR on counting list of executed apps",currentdate,res.user);
 			return;
 		});
 	}
@@ -1152,7 +1148,7 @@ app.get('/get_component_timing', function(req, res) { //this is for the table ex
 	if((taskid==undefined) && (execfile != undefined))
 		taskid=execfile;
 	if(execfile!=undefined){
-		if(taskid.length ==0 )
+		if(taskid.length ==0)
 			taskid=execfile;
 	}
 	if((taskid==undefined) || (appid==undefined) || ( experimentid ==undefined ) ){
@@ -1184,13 +1180,12 @@ app.get('/get_experiments_stats', function(req, res) { //this is for the table e
  	var appid		= CommonModule.remove_quotation_marks(find_param(req.body.appid, req.query.appid));
 	var execfile	= CommonModule.remove_quotation_marks(find_param(req.body.execfile, req.query.execfile));//deprecated, now we use taskid
 	var experimentid	= CommonModule.remove_quotation_marks(find_param(req.body.expid, req.query.expid));
-
 	var taskid	= CommonModule.remove_quotation_marks(find_param(req.bodytaskid, req.query.taskid));
-	
+
 	if((taskid==undefined) && (execfile != undefined))
 		taskid=execfile;
 	if(execfile!=undefined){
-		if(taskid.length ==0 )
+		if(taskid.length ==0)
 			taskid=execfile;
 	}
 	if((taskid==undefined) || (appid==undefined) || ( experimentid ==undefined ) ){
@@ -1223,14 +1218,13 @@ app.get('/count_experiments_metrics', function(req, res) { //this is for the tab
 	var execfile	= CommonModule.remove_quotation_marks(find_param(req.body.execfile, req.query.execfile));//deprecated, now we use taskid
 	var experimentid	= CommonModule.remove_quotation_marks(find_param(req.body.execution, req.query.execution));
 	var taskid	= CommonModule.remove_quotation_marks(find_param(req.bodytaskid, req.query.taskid));
-	
 	if((taskid==undefined) && (execfile != undefined))
 		taskid=execfile;
 	if(execfile!=undefined){
-		if(taskid.length ==0 )
+		if(taskid.length ==0)
 			taskid=execfile;
 	}
-	if((taskid==undefined) || (appid==undefined) || ( experimentid ==undefined )  ){
+	if((taskid==undefined) || (appid==undefined) || ( experimentid ==undefined ) ){
 		res.writeHead(400, { 'Content-Type': contentType_text_plain });
 		res.end("\n400: Bad Request, missing " + "parameter" + ".\n");
 		return;
@@ -1259,11 +1253,11 @@ app.get('/count_executions', function(req, res) { //this is for the table execut
  	var appid		= CommonModule.remove_quotation_marks(find_param(req.body.appid, req.query.appid));
 	var execfile	= CommonModule.remove_quotation_marks(find_param(req.body.execfile, req.query.execfile));//deprecated, now we use taskid
 	var taskid	= CommonModule.remove_quotation_marks(find_param(req.bodytaskid, req.query.taskid));
-	
+
 	if((taskid==undefined) && (execfile != undefined))
 		taskid=execfile;
 	if(execfile!=undefined){
-		if(taskid.length ==0 )
+		if(taskid.length ==0)
 			taskid=execfile;
 	}
 	if((taskid==undefined) || (appid==undefined) ){
@@ -1283,7 +1277,7 @@ app.get('/count_executions', function(req, res) { //this is for the table execut
 		},(resultReject)=> {
 			res.writeHead(400, {"Content-Type": contentType_text_plain});
 			res.end("ERROR on counting list of executed apps, the appid+taskid \""+ appid+"_"+taskid+"\" may not be registered\n" + resultReject + "\n", 'utf-8'); //error counting projects in the DB
-			var resultlog = LogsModule.register_log( es_servername + ":" + es_port,SERVERDB,400,req.connection.remoteAddress,"ERROR on counting list of executed apps",currentdate,res.user);
+			var resultlog = LogsModule.register_log(es_servername + ":" + es_port,SERVERDB,400,req.connection.remoteAddress,"ERROR on counting list of executed apps",currentdate,res.user);
 			return;
 		});
 	}
@@ -1298,14 +1292,14 @@ app.get('/list_executions', function(req, res) { //this is for the table executi
 // 	var appid ="demo";, execfile ="pthread-example";
 	var execfile	= CommonModule.remove_quotation_marks(find_param(req.body.execfile, req.query.execfile));//deprecated, now we use taskid
 	var taskid	= CommonModule.remove_quotation_marks(find_param(req.bodytaskid, req.query.taskid));
-	
+
 	if((taskid==undefined) && (execfile != undefined))
 		taskid=execfile;
 	if(execfile!=undefined){
-		if(taskid.length ==0 )
+		if(taskid.length ==0)
 			taskid=execfile;
-	}	
-	if((taskid==undefined) || (appid==undefined)  ){
+	}
+	if((taskid==undefined) || (appid==undefined) ){
 		res.writeHead(400, { 'Content-Type': contentType_text_plain });
 		res.end("\n400: Bad Request, missing " + "parameter" + ".\n");
 		return;
@@ -1342,9 +1336,7 @@ app.get('/list_executions', function(req, res) { //this is for the table executi
 	}
 });
 
-
-
-//********************************************************** 
+//**********************************************************
 app.post('/register_new_exec',middleware.ensureAuthenticated, function(req, res) { //this is for the table executions_status, all the info is in a JSON file
 	register_new_exec(req, res,true);
 });
@@ -1395,14 +1387,13 @@ app.get('/query_exec',middleware.ensureAuthenticated, function(req, res) {
 	var currentdate	= dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
 	var pretty 		= find_param(req.body.pretty, req.query.pretty);
 	var appname	= find_param(req.body.app, req.query.app);
-	appname= validate_parameter(appname,"app",currentdate,res.user, req.connection.remoteAddress);//generates the error log if not defined 
-	
+	appname= validate_parameter(appname,"app",currentdate,res.user, req.connection.remoteAddress);//generates the error log if not defined
 	if(appname==undefined) appname="";
 	if (appname.length == 0){
 		res.writeHead(400, { 'Content-Type': contentType_text_plain });
 		res.end("\n400: Bad Request, missing " + "app" + ".\n");
 		return;} 
-	//*******************************************  
+	//*******************************************
 	var result_count = ExecsModule.query_count_exec_app_name(es_servername + ":" + es_port,SERVERDB, appname);
 	result_count.then((resultResolve) => {
 		if(resultResolve==0){//new entry (2) we resister new entry
@@ -1412,7 +1403,6 @@ app.get('/query_exec',middleware.ensureAuthenticated, function(req, res) {
 		}else{
 			var result_id = ExecsModule.find_exec_id(es_servername + ":" + es_port,SERVERDB, appname, pretty);
 			result_id.then((result_idResolve) => {
-				
 				var mybody_obj= ExecsModule.compose_query_id(result_idResolve);
 				var searching = ExecsModule.query_exec(es_servername+":"+es_port,SERVERDB, mybody_obj, pretty);//.replace(/\//g, '\\/');
 				searching.then((resultFind) => {
@@ -1429,7 +1419,7 @@ app.get('/query_exec',middleware.ensureAuthenticated, function(req, res) {
 				return;
 			},(result_idReject)=> {
 				res.writeHead(400, {"Content-Type": contentType_text_plain});
-				res.end( "error requesting Execution history", 'utf-8');
+				res.end("error requesting Execution history", 'utf-8');
 				return;
 			});
 		}
@@ -1472,30 +1462,30 @@ app.post('/signup', function(req, res) {
 	var name= find_param(req.body.userid, req.query.userid);
 	var email= find_param(req.body.email, req.query.email);
 	var pw=find_param(req.body.pw, req.query.pw);
-	var resultlog ;
+	var resultlog;
 	if (pw == undefined){
 		res.writeHead(400, {"Content-Type": contentType_text_plain});
 		res.end("\n400: SIGNUP Bad Request, missing Passwd.\n");
 		resultlog = LogsModule.register_log(es_servername+":"+es_port,SERVERDB, 400,req.connection.remoteAddress,"SIGNUP Bad Request, missing Passwd",currentdate,"");
-		return ;
+		return;
 	}else if(pw.length == 0){
 		res.writeHead(400, {"Content-Type": contentType_text_plain});
 		res.end("\n400: SIGNUP Bad Request, empty Passwd.\n");
 		resultlog = LogsModule.register_log(es_servername+":"+es_port,SERVERDB, 400,req.connection.remoteAddress,"SIGNUP Bad Request, Empty Passwd",currentdate,"");
-		return ;
+		return;
 	}
 	if (email == undefined){
 		res.writeHead(400, {"Content-Type": contentType_text_plain});
 		res.end("\n400: Bad Request, missing Email.\n");
 		resultlog = LogsModule.register_log( es_servername+":"+es_port,SERVERDB,400,req.connection.remoteAddress,"SIGNUP Bad Request, missing Email",currentdate,"");
-		return ;
+		return;
 	}else if (email.length == 0){
 		res.writeHead(400, {"Content-Type": contentType_text_plain});
 		res.end("\n400: Bad Request, Empty Email.\n");
 		resultlog = LogsModule.register_log( es_servername+":"+es_port,SERVERDB,400,req.connection.remoteAddress,"SIGNUP Bad Request, Empty Email",currentdate,"");
-		return ;
+		return;
 	}
-	console.log("[LOG]: REGISTER USER+PW"); 
+	console.log("[LOG]: REGISTER USER+PW");
 	console.log("   " +colours.FgYellow + colours.Bright + " user: " + colours.Reset + email );
 	console.log("   " +colours.FgYellow + colours.Bright + " request from IP: " + req.connection.remoteAddress + colours.Reset);
 	if(( req.connection.remoteAddress!= ips[0] ) &&( req.connection.remoteAddress!=ips[1])&&( req.connection.remoteAddress!=ips[2])){
@@ -1504,7 +1494,7 @@ app.post('/signup', function(req, res) {
 		resultlog = LogsModule.register_log( es_servername+":"+es_port,SERVERDB,403,req.connection.remoteAddress,messagea,currentdate,"");
 		res.writeHead(403, {"Content-Type": contentType_text_plain});
 		res.end("\n403: FORBIDDEN access from external IP.\n");
-		return ;
+		return;
 	}
 	var result = UsersModule.register_new_user(es_servername+":"+es_port,SERVERDB, name, email, pw);
 	result.then((resultreg) => {
@@ -1536,17 +1526,17 @@ app.post('/update_user', function(req, res) {
 	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
 	var name= find_param(req.body.userid, req.query.userid);
 	var email= find_param(req.body.email, req.query.email);
-	var pw=find_param(req.body.pw, req.query.pw); 
-	if (pw == undefined){ 
+	var pw=find_param(req.body.pw, req.query.pw);
+	if (pw == undefined){
 		res.writeHead(400, {"Content-Type": contentType_text_plain});
 		res.end("\n400: SIGNUP Bad Request, missing Email.\n");
 		resultlog = LogsModule.register_log(es_servername+":"+es_port,SERVERDB, 400,req.connection.remoteAddress,"SIGNUP Bad Request, missing Email",currentdate,"");
-		return ;
+		return;
 	}else if (pw.length == 0){
 		res.writeHead(400, {"Content-Type": contentType_text_plain});
 		res.end("\n400: SIGNUP Bad Request, Empty Email.\n");
 		resultlog = LogsModule.register_log(es_servername+":"+es_port,SERVERDB, 400,req.connection.remoteAddress,"SIGNUP Bad Request, Empty Email",currentdate,"");
-		return ;
+		return;
 	}
 	if (email == undefined){
 		res.writeHead(400, {"Content-Type": contentType_text_plain});
@@ -1557,14 +1547,14 @@ app.post('/update_user', function(req, res) {
 		res.writeHead(400, {"Content-Type": contentType_text_plain});
 		res.end("\n400: Bad Request, Empty Email.\n");
 		resultlog = LogsModule.register_log(es_servername+":"+es_port,SERVERDB, 400,req.connection.remoteAddress,"SIGNUP Bad Request, Empty Email",currentdate,"");
-		return ;
+		return;
 	}
 	if(( req.connection.remoteAddress!= ips[0] ) &&( req.connection.remoteAddress!=ips[1])&&( req.connection.remoteAddress!=ips[2])){
 		var messagea = "REGISTER USER '"+ email + "' FORBIDDEN access from external IP";
 		resultlog = LogsModule.register_log(es_servername+":"+es_port,SERVERDB, 403,req.connection.remoteAddress,messagea,currentdate,"");
 		res.writeHead(403, {"Content-Type": contentType_text_plain});
 		res.end("\n403: FORBIDDEN access from external IP.\n");
-		return ;
+		return;
 	}
 	var result = UsersModule.update_user(es_servername+":"+es_port,SERVERDB, name, email, pw);
 	result.then((resultreg) => {
@@ -1583,7 +1573,7 @@ app.post('/update_user', function(req, res) {
 		res.end("updateuser: Bad Request "+resultReject.text+"\n");
 		var messagec = "UPDATE USER '"+ email + "' BAD REQUEST";
 		resultlog = LogsModule.register_log(es_servername+":"+es_port,SERVERDB, resultreg.code, req.connection.remoteAddress, messagec,currentdate,"");
-	} );
+	});
 });
 
 //**********************************************************
@@ -1591,7 +1581,7 @@ app.post('/update_user', function(req, res) {
 // curl -H "Content-Type: text/plain" -XGET http://localhost:8000/login?email="bob"\&pw="1234" --output token.txt
 app.get('/login', function(req, res) {
 	"use strict";
-	var resultlog ;
+	var resultlog;
 	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l"); 
 	var email= find_param(req.body.email, req.query.email);
 	var pw=find_param(req.body.pw, req.query.pw);
@@ -1620,13 +1610,13 @@ app.get('/login', function(req, res) {
 	var result = UsersModule.query_count_user_pw( es_servername+":"+es_port,SERVERDB, email, pw); //returns the count of email-pw, if !=1 then we consider not registered.
 	result.then((resultCount) => {
 		if(resultCount==1){
-			var mytoken= auth.emailLogin(email); 
+			var mytoken= auth.emailLogin(email);
 			res.writeHead(200, {"Content-Type": contentType_text_plain});
 			res.end(mytoken);
 			resultlog = LogsModule.register_log(es_servername+":"+es_port,SERVERDB, 200, req.connection.remoteAddress, "New token Generated",currentdate,"");
 		}else{
 			res.writeHead(401, {"Content-Type": contentType_text_plain});
-			res.end("401 (Unauthorized) Autentication failed, incorrect user " +" or passwd " +"\n"); 
+			res.end("401 (Unauthorized) Autentication failed, incorrect user " +" or passwd " +"\n");
 // 			console.log("resultCount "+resultCount);
 			resultlog = LogsModule.register_log(es_servername+":"+es_port,SERVERDB, 401, req.connection.remoteAddress,
 				"401: Bad Request of Token, incorrect user or passwd "+email+"or passwd ",currentdate,"");
@@ -1635,8 +1625,8 @@ app.get('/login', function(req, res) {
 		res.writeHead(400, {"Content-Type": contentType_text_plain});
 		res.end("\n400: Bad Request "+resultReject+"\n");
 		resultlog = LogsModule.register_log(es_servername+":"+es_port,SERVERDB, 400, req.connection.remoteAddress, 
-				"400: Bad Token Request "+resultReject,currentdate,"");	
-	} );
+				"400: Bad Token Request "+resultReject,currentdate,"");
+	});
 }); // login
 function originIsAllowed(origin) {
 	// put logic here to detect whether the specified origin is allowed.
@@ -1647,7 +1637,7 @@ function originIsAllowed(origin) {
 function consolelogjsonws(JSONstring ){
 	var jsonobj = JSON.parse(JSONstring);
 	var keys = Object.keys(jsonobj);
-	var myres = { user: "", project: "" , device: "" , execution_id: ""};
+	var myres = { user: "", project: "", device: "", execution_id: ""};
 	for (var i = 0; i < keys.length; i++) {
 		var labeltxt=Object.getOwnPropertyNames(jsonobj)[i];
 		labeltxt=lowercase(labeltxt);
@@ -1764,12 +1754,12 @@ app.ws('/', function(ws_connection, req) {
 	//******************************************
 	// received a message from the user
 	ws_connection.on('message', function(message) { //received message is message
-		user_input = consolelogjsonws( message );
+		user_input = consolelogjsonws( message);
 		user_id=find_pos_user_address(client_address);
 		if(user_id==totalusers){//address not registered, we add it at the end of the list
 			user_id=0;
 			//we look if there is any position was free in the list before the last used
-			while(user_id<totalusers && user_address[user_id]!= undefined ){
+			while(user_id<totalusers && user_address[user_id]!= undefined){
 				user_id=user_id+1;
 			}
 			if(user_id==totalusers && totalusers<max_users){//we don't found such free position, then the list increases in one position
@@ -1785,16 +1775,13 @@ app.ws('/', function(ws_connection, req) {
 		user_ids[user_id]=user_input.user;//only for debuging
 		user_conn[user_id]=ws_connection;
 		
-		//compose the message describing the update of suscription 
+		//compose the message describing the update of suscription
 		var update_suscription_msg = {};
 		update_suscription_msg["user"]= user_input.user;
-		
-		
-	console.log( ' message ' + message );
-	console.log( ' exid ' + user_input.execution_id );
 
-	
-	
+	// 	console.log( ' message ' + message );
+	// 	console.log( ' exec_id ' + user_input.execution_id );
+
 		if(user_input.project != undefined)
 		if(user_input.project.length > 0){
 			update_suscription_msg ["suscribed_to_project"] = user_input.project;
@@ -1905,8 +1892,7 @@ app.all("*", function(req, res) {
 	return;
 });
 //**********************************************************
-var tryToOpenServer = function(port)
-{
+var tryToOpenServer = function(port) {
 	console.log('trying to Open port: ' + port);
 	console.log('we will get an error IF there is other server running on the same port');
 	app.listen(port, function() {
