@@ -255,29 +255,28 @@ const logsmapping = {
 		}
 	}
 };
-	var expressWs 		= require('express-ws')(app);
+	var expressWs = require('express-ws')(app);
 	var app = expressWs.app;
-//*******************************************************************
 //******************** VARIABLES FOR WSockets **********************
 //*** STORAGE OF USERS
 	const max_users=50;
 	var totalusers=0;
-	var user_ids = new Array(max_users );
-	var user_conn = new Array(max_users ); // the connetion of each user
+	var user_ids = new Array(max_users);
+	var user_conn = new Array(max_users); // the connetion of each user
 
-	var user_address = new Array(max_users ); // the connetion of each user
-	var user_index = new Array(max_users ); // the connetion of each user
+	var user_address = new Array(max_users); // the connetion of each user
+	var user_index = new Array(max_users); // the connetion of each user
 	
 //*** STORAGE OF PROJECT CONTENTS
 	const max_projects= 100;
-	const max_mensages=40;
+	const max_mensages=100;
 	var totalmensages= [max_projects];
 	for (var i = 0; i < max_projects; i++)
 		totalmensages[i]=0;
 	var ProjectContents = new Array(max_projects,max_mensages); //10 projects, stack of max_mensages contents
 	
 //*** STORAGE OF SUSCRIPTIONS
-	const max_suscrip=6;
+	const max_suscrip=100;
 
 	var total_project_suscriptions= [max_users]; //for each user
 	for (var i = 0; i < max_users; i++)
@@ -293,7 +292,8 @@ const logsmapping = {
 	for (var i = 0; i < max_users; i++)
 		total_exec_suscriptions[i]=0;
 	var ExecSubscriptions = new Array(max_users,max_suscrip); //stack of "max_suscrip" proj suscr for each user
-
+	var ExecSubscriptionsType = new Array(max_users,max_suscrip); //stack of "max_suscrip" proj suscr for each user
+	
 	var clients = [ ];// list of currently connected clients (users)
 //****************************************************
 //**********************************************************
@@ -391,6 +391,50 @@ function update_filename_path_on_json(JSONstring, project,source, filename, path
 }
 
 
+function update_request_time(JSONstring, req_date){
+	var new_json = {  }
+	var jsonobj = JSON.parse(JSONstring);
+	var keys = Object.keys(jsonobj);
+	if (req_date == undefined) req_date="";
+	new_json['req_date']=req_date;
+	new_json['req_date'+'_length']=req_date.length;
+	for (var i = 0; i < keys.length; i++) {
+		var label=Object.getOwnPropertyNames(jsonobj)[i];
+		label=lowercase(label);
+		if((label != 'req_date') && (label != 'req_date_length'))
+			new_json[label]=jsonobj[keys[i]]; //add one property
+		if( typeof jsonobj[keys[i]] == 'string'){
+			new_json[label+'_length']=jsonobj[keys[i]].length;
+		}
+	}
+	new_json=(JSON.stringify(new_json));
+	return new_json;
+}
+
+function update_exec_status(JSONstring, status){
+	var new_json = {  }
+	var jsonobj = JSON.parse(JSONstring);
+	var keys = Object.keys(jsonobj);
+	if (status == undefined) status="";
+	new_json['req_status']=status;
+	new_json['req_status'+'_length']=status.length;
+	for (var i = 0; i < keys.length; i++) {
+		var label=Object.getOwnPropertyNames(jsonobj)[i];
+		label=lowercase(label);
+		if((label != 'req_status') && (label != 'req_status_length'))
+			new_json[label]=jsonobj[keys[i]]; //add one property
+		if( typeof jsonobj[keys[i]] == 'string'){
+			new_json[label+'_length']=jsonobj[keys[i]].length;
+		}
+	}
+	new_json=(JSON.stringify(new_json));
+	return new_json;
+}
+
+
+
+
+
 function find_id(JSONstring){
 	var response = "";
 	var jsonobj = JSON.parse(JSONstring);
@@ -430,8 +474,6 @@ function update_app_length_on_json(JSONstring, appname){
 	var jsonobj = JSON.parse(JSONstring);
 	var keys = Object.keys(jsonobj);
 	if (appname== undefined) appname="";
-	new_json['app']=appname;
-	new_json['app_length']=appname.length;
 	for (var i = 0; i < keys.length; i++) {
 		var label=Object.getOwnPropertyNames(jsonobj)[i];
 		label=lowercase(label);
@@ -441,6 +483,8 @@ function update_app_length_on_json(JSONstring, appname){
 			new_json[label+'_length']=jsonobj[keys[i]].length;
 		}
 	}
+	new_json['app']=appname;
+	new_json['app_length']=appname.length;
 	new_json=(JSON.stringify(new_json));
 	return new_json;
 }
@@ -454,7 +498,7 @@ function update_execution_id_length_on_json(JSONstring, exec_id){
 		var label=Object.getOwnPropertyNames(jsonobj)[i];
 		label=lowercase(label);
 		if((label != 'execution_id') && (label != 'execution_id_length'))
-		new_json[label]=jsonobj[keys[i]]; //add one property
+			new_json[label]=jsonobj[keys[i]]; //add one property
 		if( typeof jsonobj[keys[i]] == 'string'){
 			new_json[label+'_length']=jsonobj[keys[i]].length;
 		}
@@ -876,19 +920,22 @@ function register_new_exec(req, res,new_exec){
 	jsontext =update_app_length_on_json(jsontext, appname); //this adds the field app.length
 // 	jsontext =update_execution_id_length_on_json(jsontext, exec_id);
 
+	var req_date = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
+	jsontext = update_request_time ( jsontext, req_date);
+	jsontext = update_exec_status ( jsontext, "pending");
 // 	console.log("send_exec_update_to_suscribers("+appname+")");
 // 	send_exec_update_to_suscribers(appname,jsontext);
 // 	var result_count = ExecsModule.query_count_exec_exec_id(es_servername + ":" + es_port,SERVERDB, exec_id);
 // 	result_count.then((resultResolve) => {
 // 		if(resultResolve==0){//new entry (2) we resister new entry
-			var result = ExecsModule.register_exec_json(es_servername + ":" + es_port,SERVERDB, jsontext);
+			var result = ExecsModule.register_exec_json(es_servername + ":" + es_port, SERVERDB, jsontext);
 			result.then((resultResolve) => {
 				resultlog = LogsModule.register_log(es_servername + ":" + es_port,SERVERDB, 200,req.connection.remoteAddress,"Add task Succeed",currentdate,res.user);
 
 				var exec_id = find_id(resultResolve.text);
-			// 	jsontext =update_execution_id_length_on_json(jsontext, exec_id); TODO !!! need update the already registered json
-// 				console.log("send_exec_update_to_suscribers("+exec_id+")");
-				send_exec_update_to_suscribers(exec_id,jsontext);
+				jsontext =update_execution_id_length_on_json(jsontext, exec_id); // need update the already registered json
+// 				console.log("send_exec_update_to_suscribers("+exec_id+" pending)");
+				send_exec_update_to_suscribers(exec_id, "pending", jsontext);
 				res.writeHead(resultResolve.code, {"Content-Type": contentType_text_plain});
 				res.end(exec_id, 'utf-8');
 			},(resultReject)=> {
@@ -983,13 +1030,17 @@ function register_exec(req, res,new_exec){
 	var result_count = ExecsModule.query_count_exec_exec_id(es_servername + ":" + es_port,SERVERDB, exec_id);
 	result_count.then((resultResolve) => {
 		if(resultResolve==0){//new entry (2) we resister new entry
+			var req_date = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
+			jsontext = update_request_time ( jsontext, req_date);
+			jsontext = update_exec_status ( jsontext, "pending");
+
 			var result = ExecsModule.register_exec_json(es_servername + ":" + es_port,SERVERDB, jsontext);
 			result.then((resultResolve) => {
 				resultlog = LogsModule.register_log(es_servername + ":" + es_port,SERVERDB, 200,req.connection.remoteAddress,"Add task Succeed",currentdate,res.user);
 // 				var exec_id = find_id(resultResolve.text);
 			// 	jsontext =update_execution_id_length_on_json(jsontext, exec_id); TODO !!! need update the already registered json
-// 				console.log("send_exec_update_to_suscribers("+exec_id+")");
-				send_exec_update_to_suscribers(exec_id,jsontext);
+// 				console.log("send_exec_update_to_suscribers("+exec_id+" type: pending )");
+				send_exec_update_to_suscribers(exec_id, "pending", jsontext);
 				res.writeHead(resultResolve.code, {"Content-Type": contentType_text_plain});
 				res.end(exec_id, 'utf-8');
 			},(resultReject)=> {
@@ -1004,49 +1055,43 @@ function register_exec(req, res,new_exec){
 			return;
 		}else{ //already existing, (3.1) first we get the registered json
 // 			var result_id = ExecsModule.find_exec_id(es_servername + ":" + es_port,SERVERDB, appname);
-// 			result_id.then((result_idResolve) => {
-				var elasticsearch = require('elasticsearch');
-				var clientb = new elasticsearch.Client({
-					host: es_servername + ":" + es_port,
-					log: 'error'
-				});
-				var algo= new Promise( (resolve,reject) => {
-					var mergejson = JSON.parse(jsontext);
-					clientb.update({//index replaces the json in the DB with the new one
-						index: SERVERDB,
-						type: 'executions_status',
-						id: exec_id, //result_idResolve,
-						body: {doc: mergejson}
-					}, function(error, response) {
-						if(error){
-							reject (error);
-						} else if(!error){
-							var verify_flush = CommonModule.my_flush(req.connection.remoteAddress ,es_servername + ":" + es_port,SERVERDB);
-							verify_flush.then((resolve_result) => {
-								resolve ("Succeed" );
-							},(reject_result)=> {
-								reject ( );
-							});
-						}
-					});//end query client.index
-				});
-				algo.then((resultResolve) => {
-	console.log("send_exec_update_to_suscribers("+exec_id+")");
-					send_exec_update_to_suscribers(exec_id,jsontext);
-					res.writeHead(200, {"Content-Type": contentType_text_plain});
-// 					res.end("Succeed updated.", 'utf-8');
-					res.end(exec_id, 'utf-8');
-					return;
-				},(resultReject)=> {
-					res.writeHead(400, {"Content-Type": contentType_text_plain});
-					res.end("error: "+resultReject, 'utf-8');
-					return;
-				});
-// 			},(result_idReject)=> {
-// 				res.writeHead(400, {"Content-Type": contentType_text_plain});
-// 				res.end("error requesting id", 'utf-8');
-// 				return;
-// 			});
+			var elasticsearch = require('elasticsearch');
+			var clientb = new elasticsearch.Client({
+				host: es_servername + ":" + es_port,
+				log: 'error'
+			});
+			var algo= new Promise( (resolve,reject) => {
+				jsontext = update_exec_status ( jsontext, "completed");
+				var mergejson = JSON.parse(jsontext);
+				clientb.update({//index replaces the json in the DB with the new one
+					index: SERVERDB,
+					type: 'executions_status',
+					id: exec_id,
+					body: {doc: mergejson}
+				}, function(error, response) {
+					if(error){
+						reject (error);
+					} else if(!error){
+						var verify_flush = CommonModule.my_flush(req.connection.remoteAddress ,es_servername + ":" + es_port,SERVERDB);
+						verify_flush.then((resolve_result) => {
+							resolve ("Succeed" );
+						},(reject_result)=> {
+							reject ( );
+						});
+					}
+				});//end query client.index
+			});
+			algo.then((resultResolve) => {
+				console.log("send_exec_update_to_suscribers("+exec_id+"type: completed)");
+				send_exec_update_to_suscribers(exec_id,"completed", jsontext);
+				res.writeHead(200, {"Content-Type": contentType_text_plain});
+				res.end(exec_id, 'utf-8');
+				return;
+			},(resultReject)=> {
+				res.writeHead(400, {"Content-Type": contentType_text_plain});
+				res.end("error: "+resultReject, 'utf-8');
+				return;
+			});
 		}
 	},(resultReject)=> {
 		res.writeHead(400, {"Content-Type": contentType_text_plain});
@@ -1082,14 +1127,14 @@ function request_exec_id(appname){
 							reject("error requesting id");
 						});
 					},(resultReject)=> {//error regsiterning the new appname
-						reject (resultReject.text);
+						reject(resultReject.text);
 					});
 				}else{
 					var result_id = ExecsModule.find_exec_id(es_servername + ":" + es_port,SERVERDB, appname);
 					result_id.then((result_idResolve) => {
 						resolve(result_idResolve);
 					},(result_idReject)=> {//error finding the exec id
-						reject( "error requesting id" );
+						reject("error requesting id");
 					});
 				}
 			},(resultReject)=> { //error looking for appname
@@ -1654,88 +1699,49 @@ function originIsAllowed(origin) {
 	return true;
 };
 
-//report on the screen the list of fields, and values
-function consolelogjsonws(JSONstring ){
+//types of executions are completed or pending, if undefined the exec manager will be considered it as "completed"
+function consolelogjsonws(JSONstring){
 	var jsonobj = JSON.parse(JSONstring);
 	var keys = Object.keys(jsonobj);
-	var myres = { user: "", project: "", device: "", execution_id: ""};
+	var myres = { user: "",
+// 		project: "", device: "",
+		execution_id: "", type: "completed"};
 	for (var i = 0; i < keys.length; i++) {
 		var labeltxt=Object.getOwnPropertyNames(jsonobj)[i];
 		labeltxt=lowercase(labeltxt);
 		if(labeltxt == 'user') {
 			myres.user = jsonobj[keys[i]];
-		}else if(labeltxt == 'project') {
-			myres.project = jsonobj[keys[i]];
-		}else if(labeltxt == 'device') {
-			myres.device = jsonobj[keys[i]];
+// 		}else if(labeltxt == 'project') {
+// 			myres.project = jsonobj[keys[i]];
+// 		}else if(labeltxt == 'device') {
+// 			myres.device = jsonobj[keys[i]];
 		}else if(labeltxt == 'execution_id') {
 			myres.execution_id = jsonobj[keys[i]];
+		}else if(labeltxt == 'type') {
+			myres.type = jsonobj[keys[i]];// posible values are "completed" or "pending"
 		}
 	}
 	return myres;
 };
 
-function send_project_update_to_suscribers(projectname,jsontext){
-	//*******************************************************************
-	if(projectname != undefined)
-	if(projectname.length > 0){
-		//Now we find the suscribed users and we send copy
-		for (var u = 0; u < max_users; u++) {
-			var found_sucrip=false;
-			var i=0;
-			while(i< total_project_suscriptions[u] && found_sucrip==false){
-				if(ProjectSubscriptions[u,i]==projectname){
-					found_sucrip=true;
-				}else{
-					i++;
-				}
-			}
-			if(found_sucrip==true){
-				//we send the copy because we found the SUSCRIPTION
-				console.log("Forwarding to suscribed user: "+user_ids[u] + " Project: "+ projectname);
-				//user_conn[u].send("{\"project modified \":\""+projectname+"\" }");
-				user_conn[u].send(jsontext);
-			}
-		}
-	}
-};
-
-function send_device_update_to_suscribers(devicename,jsontext){
-	//*******************************************************************
-	if(devicename != undefined){
-	if(devicename.length > 0){
-		//Now we find the suscribed users and we send copy
-		for (var u = 0; u < max_users; u++) {
-			var found_sucrip=false;
-			var i=0;
-			while(i< total_device_suscriptions[u] && found_sucrip==false){
-				if(DeviceSubscriptions[u,i]==devicename){
-					found_sucrip=true;
-				}else{
-					i++;
-				}
-			}
-			if(found_sucrip==true){
-				//we send the copy because we found the SUSCRIPTION
-				console.log("Forwarding to suscribed user: "+user_ids[u] + " Device: "+ devicename);
-				//user_conn[u].send("{\"project modified \":\""+devicename+"\" }");
-				user_conn[u].send(jsontext);
-			}
-		}
-	}}
-};
-
-function send_exec_update_to_suscribers(exec_id,jsontext){
+function send_exec_update_to_suscribers(exec_id, type, jsontext){
 	//*******************************************************************
 	if(exec_id != undefined){
 	if(exec_id.length > 0){
 		//Now we find the suscribed users and we send copy
+		console.log("max_users :"+max_users);
 		for (var u = 0; u < max_users; u++) {
 			var found_sucrip=false;
 			var i=0;
+			if (total_exec_suscriptions[u] >0){
+				console.log("user "+u+" total_exec_suscriptions[u]"+total_exec_suscriptions[u]);
+			}
 			while(i< total_exec_suscriptions[u] && found_sucrip==false){
-// 				console.log("suscriptions "+u+","+i+","+ExecSubscriptions[u,i]+ "=?"+exec_id);
-				if(ExecSubscriptions[u,i]==exec_id){
+				console.log("    suscriptions "+u+", num "+i+", exec_id== "+ExecSubscriptions[u,i]+ "=?"+exec_id);
+				console.log("    , type== "+ExecSubscriptionsType[u,i]+ "=?"+type);
+				if((ExecSubscriptions[u,i]==exec_id) &&(ExecSubscriptionsType[u,i]==type)){
+					found_sucrip=true;
+				}else if((ExecSubscriptions[u,i]== "any") &&(ExecSubscriptionsType[u,i]==type)){
 					found_sucrip=true;
 				}else{
 					i++;
@@ -1743,7 +1749,7 @@ function send_exec_update_to_suscribers(exec_id,jsontext){
 			}
 			if(found_sucrip==true){
 				//we send the copy because we found the SUSCRIPTION
-				console.log("Forwarding to suscribed user: "+user_ids[u] + " Execution_id: "+ exec_id);
+				console.log("Forwarding to suscribed user: "+user_ids[u] + " Execution_id: "+ exec_id+" type: "+ type);
 				//user_conn[u].send("{\"project modified \":\""+execname+"\" }");
 				user_conn[u].send(jsontext);
 			}
@@ -1775,7 +1781,13 @@ app.ws('/', function(ws_connection, req) {
 	//******************************************
 	// received a message from the user
 	ws_connection.on('message', function(message) { //received message is message
-		user_input = consolelogjsonws( message);
+		user_input = consolelogjsonws(message);
+		if(user_input.execution_id.length==0){
+		// Make sure not missing input parameters
+			ws_connection.send((new Date()) + ' Error on request from origin '+ client_address+ " missing exec_id ");
+			console.log((new Date()) + ' Error on request from origin '+ client_address+ " missing exec_id ");
+			return;
+		}
 		user_id=find_pos_user_address(client_address);
 		if(user_id==totalusers){//address not registered, we add it at the end of the list
 			user_id=0;
@@ -1795,25 +1807,18 @@ app.ws('/', function(ws_connection, req) {
 		user_index[user_id]=index;
 		user_ids[user_id]=user_input.user;//only for debuging
 		user_conn[user_id]=ws_connection;
-		
 		//compose the message describing the update of suscription
 		var update_suscription_msg = {};
 		update_suscription_msg["user"]= user_input.user;
 
-	// 	console.log( ' message ' + message );
-	// 	console.log( ' exec_id ' + user_input.execution_id );
-
-		if(user_input.project != undefined)
-		if(user_input.project.length > 0){
-			update_suscription_msg ["suscribed_to_project"] = user_input.project;
-		}
-		if(user_input.device != undefined)
-		if(user_input.device.length > 0){
-			update_suscription_msg["suscribed_to_device"] = user_input.device;
-		}
-		if(user_input.execution_id != undefined)
+	// 	console.log( ' message ' + message + '\n exec_id ' + user_input.execution_id);
+		update_suscription_msg ["suscribed_to_execution"] = "any";
 		if(user_input.execution_id.length > 0){
 			update_suscription_msg ["suscribed_to_execution"] = user_input.execution_id;
+		}
+		update_suscription_msg ["to_be_notified_when"] = "completed";
+		if(user_input.type.length > 0){
+			update_suscription_msg ["to_be_notified_when"] = user_input.type; //valid values are "completed" and "pending"
 		}
 
 		console.log(JSON.stringify(update_suscription_msg));
@@ -1822,56 +1827,26 @@ app.ws('/', function(ws_connection, req) {
 		//******************************************************
 		//first we need find if the user_id already suscribed, if not then we add the new suscription
 		//**********************************************************************
-		//adding suscriptoin on PROJECTS:
-		var found_susc=false;
-		if(user_input.project!=undefined)
-		if(user_input.project.length > 0){
-			for (var i = 0; i < total_project_suscriptions[user_id]; i++)
-				if(ProjectSubscriptions[user_id,i]==user_input.project) {
-					found_susc=true;
-// 					console.log("found previous suscription adding at "+user_id+" "+i);
-				}
-			if(found_susc==false){
-				console.log("not found previous project suscription adding at "+user_id+" "+total_project_suscriptions[user_id]+ ": "+user_input.project);
-				ProjectSubscriptions[user_id,total_project_suscriptions[user_id]]=user_input.project;
-				total_project_suscriptions[user_id]=total_project_suscriptions[user_id]+1;
-			}
-		}
-		//**********************************************************************
-		//adding suscriptoin on DEVICES:
+		//adding subscription on EXECs:
 		found_susc=false;
-		if(user_input.device!=undefined)
-		if(user_input.device.length > 0){
-			for (var i = 0; i < total_device_suscriptions[user_id]; i++)
-				if(DeviceSubscriptions[user_id,i]==user_input.device) {
-					found_susc=true;
-// 					console.log("found previous suscription adding at "+user_id+" "+i);
-				}
-			if(found_susc==false){
-				console.log("not found previous device suscription adding at "+user_id+" "+total_device_suscriptions[user_id]+ ": "+user_input.device);
-				DeviceSubscriptions[user_id,total_device_suscriptions[user_id]]=user_input.device;
-				total_device_suscriptions[user_id]=total_device_suscriptions[user_id]+1;
-			}
-		}
-		//**********************************************************************
-		//adding suscriptoin on EXECs:
-		found_susc=false;
-		if(user_input.execution_id!=undefined)
 		if(user_input.execution_id.length > 0){
 			for (var i = 0; i < total_exec_suscriptions[user_id]; i++)
-				if(ExecSubscriptions[user_id,i]==user_input.execution_id) {
+				if((ExecSubscriptions[user_id,i]==user_input.execution_id)
+					&&(ExecSubscriptionsType[user_id,i]=user_input.type)) {
 					found_susc=true;
 // 					console.log("found previous suscription adding at "+user_id+" "+i);
 				}
 			if(found_susc==false){
-				console.log("not found previous exec suscription adding at "+user_id+" "+total_exec_suscriptions[user_id]+ ": "+user_input.execution_id);
+				console.log("Not found any previous suscription for user: "+user_id+"\n asigning suscription num: "+total_exec_suscriptions[user_id]+ "\n to exec_id: "+user_input.execution_id+"\n");
 				ExecSubscriptions[user_id,total_exec_suscriptions[user_id]]=user_input.execution_id;
+				ExecSubscriptionsType[user_id,total_exec_suscriptions[user_id]]=user_input.type;
 				total_exec_suscriptions[user_id]=total_exec_suscriptions[user_id]+1;
 			}
 		}
-		user_input.project=undefined;
-		user_input.device=undefined;
+// 		user_input.project=undefined;
+// 		user_input.device=undefined;
 		user_input.execution_id=undefined;
+		user_input.type=undefined;
 	});
 	// user disconnected
 	ws_connection.on('close', function(reasonCode, description) {
