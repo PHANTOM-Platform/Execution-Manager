@@ -39,7 +39,7 @@ compose_query_id: function(id_string){
 		mquery={"query":{"match_all": {} }, "sort": { "app": { "order": "asc" }}};
 	}
 	return mquery;
-}, 
+},
 register_json: function(es_server, my_index, body, remoteAddress, my_type) {
 	return new Promise((resolve,reject) => {
 		var size=0;
@@ -140,18 +140,18 @@ find_exec: function(es_server, my_index, app, pretty){
 register_exec_json: function(es_server, my_index, body, remoteAddress) {
 	const my_type = 'executions_status';
 	return new Promise((resolve,reject) => {
-	var result = this.register_json (es_server, my_index, body, remoteAddress, my_type);
-	result.then((resultResolve) => {
-		resolve (resultResolve); //the result is a string which consists on the _id of the execution
-	},(resultReject)=> {
-		reject (resultReject);
-	});
+		var result = this.register_json (es_server, my_index, body, remoteAddress, my_type);
+		result.then((resultResolve) => {
+			resolve (resultResolve); //the result is a string which consists on the _id of the execution
+		},(resultReject)=> {
+			reject (resultReject);
+		});
 	});
 }, //end register_exec_json 
 //***************************************************
 //This function is used to confirm that a app exists or not in the DataBase.
 //We first counted if existence is >0
-find_exec_id: function(es_server, my_index, app){
+find_exec_id_from_appname: function(es_server, my_index, app){
 	const my_type = 'executions_status';
 	return new Promise( (resolve,reject) => {
 		var elasticsearch = require('elasticsearch');
@@ -175,7 +175,7 @@ find_exec_id: function(es_server, my_index, app){
 			}
 		});
 	});
-},//find_exec_id
+},//find_exec_id_from_appname
 
 //****************************************************
 //This function is used to confirm that an user exists or not in the DataBase.
@@ -418,13 +418,81 @@ query_search_agg_id: function(es_server, appid, exec_id){
 				reject ("error"+error+"\n for index "+my_index);
 			}
 			if(response !== undefined) {
-				resolve(JSON.stringify( response.aggregations.typesAgg.buckets, null, 4));
+				resolve(JSON.stringify(response.aggregations.typesAgg.buckets, null, 4));
 			}else{
 				resolve ("unexpected error, for index "+my_index);//size
 			}
 		});
 	});
 }, //end query_search_agg_id
+// ----------------------------------------
+count_search_pending_execs: function(es_server){
+	const my_index = "manager_db";
+	const my_type = "executions_status";
+	return new Promise( (resolve,reject) => {
+		var elasticsearch = require('elasticsearch');
+		var mytype_exec="pending";
+		var client = new elasticsearch.Client({
+			host: es_server,
+			log: 'error'
+		});
+		client.search({
+			index: my_index,
+			type: my_type,
+			body: { "query":{"bool":{"must": [
+					{"match_phrase": {"req_status":mytype_exec}}, {"term": {"req_status_length":mytype_exec.length}}
+					]}},
+					"size":0
+				}
+		}, function(error, response) {
+			if(error) {
+				reject ("error"+error+"\n for index "+my_index);
+			}
+			if(response !== undefined) {
+				resolve(JSON.stringify(response.hits.total, null, 4));
+			}else{
+				resolve ("unexpected error, for index "+my_index);//size
+			}
+		});
+	});
+}, //count_search_pending_execs
+
+// ----------------------------------------
+query_search_older_pending_exec: function(es_server){
+	const my_index = "manager_db";
+	const my_type = "executions_status";
+	return new Promise( (resolve,reject) => {
+		var elasticsearch = require('elasticsearch');
+		var mytype_exec="pending";
+		var client = new elasticsearch.Client({
+			host: es_server,
+			log: 'error'
+		});
+		client.search({
+			index: my_index,
+			type: my_type,
+			body: { "query":{"bool":{"must": [
+					{"match_phrase": {"req_status":mytype_exec}}, {"term": {"req_status_length":mytype_exec.length}}
+					]}},
+					"sort": { "req_date": { "order": "asc" }},
+					"size":1
+				}
+		}, function(error, response) {
+			if(error) {
+				reject ("error"+error+"\n for index "+my_index);
+			}
+			if(response !== undefined) {
+				var newArray = response.hits.hits.map(function(hit) {
+					return hit._source;
+				});
+				resolve(JSON.stringify(newArray, null, 4));
+			}else{
+				resolve ("unexpected error, for index "+my_index);//size
+			}
+		});
+	});
+}, //query_search_older_pending_exec
+
 //****************************************************
 //This function is used to confirm that an user exists or not in the DataBase.
 query_count_exec_doc_id: function(es_server, my_index, doc_id){

@@ -431,9 +431,25 @@ function update_exec_status(JSONstring, status){
 	return new_json;
 }
 
-
-
-
+function update_reject_reason(JSONstring, reason){
+	var new_json = {  }
+	var jsonobj = JSON.parse(JSONstring);
+	var keys = Object.keys(jsonobj);
+	if (reason == undefined) reason="";
+	new_json['rejection_reason']=reason;
+	new_json['rejection_reason'+'_length']=reason.length;
+	for (var i = 0; i < keys.length; i++) {
+		var label=Object.getOwnPropertyNames(jsonobj)[i];
+		label=lowercase(label);
+		if((label != 'rejection_reason') && (label != 'rejection_reason_length'))
+			new_json[label]=jsonobj[keys[i]]; //add one property
+		if( typeof jsonobj[keys[i]] == 'string'){
+			new_json[label+'_length']=jsonobj[keys[i]].length;
+		}
+	}
+	new_json=(JSON.stringify(new_json));
+	return new_json;
+}
 
 function find_id(JSONstring){
 	var response = "";
@@ -832,7 +848,7 @@ app.get('/_flush', function(req, res) {
 	});
 });
 //******************************************************************************
-app.get('/query_metadata',middleware.ensureAuthenticated, function(req, res) {
+app.get('/query_metadata', function(req, res) {
 	"use strict";
 	var pretty = find_param(req.body.pretty, req.query.pretty);
 	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
@@ -870,7 +886,7 @@ app.get('/query_metadata',middleware.ensureAuthenticated, function(req, res) {
 	});
 });
 //**********************************************************
-app.get('/es_query_metadata', middleware.ensureAuthenticated, function(req, res) {
+app.get('/es_query_metadata', function(req, res) {
 	"use strict";
 	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
 	var QueryBody 	= find_param(req.body.QueryBody, req.query.QueryBody);
@@ -919,7 +935,6 @@ function register_new_exec(req, res,new_exec){
 // 	exec_id=exec_id.value;
 	jsontext =update_app_length_on_json(jsontext, appname); //this adds the field app.length
 // 	jsontext =update_execution_id_length_on_json(jsontext, exec_id);
-
 	var req_date = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
 	jsontext = update_request_time ( jsontext, req_date);
 	jsontext = update_exec_status ( jsontext, "pending");
@@ -931,7 +946,6 @@ function register_new_exec(req, res,new_exec){
 			var result = ExecsModule.register_exec_json(es_servername + ":" + es_port, SERVERDB, jsontext);
 			result.then((resultResolve) => {
 				resultlog = LogsModule.register_log(es_servername + ":" + es_port,SERVERDB, 200,req.connection.remoteAddress,"Add task Succeed",currentdate,res.user);
-
 				var exec_id = find_id(resultResolve.text);
 				jsontext =update_execution_id_length_on_json(jsontext, exec_id); // need update the already registered json
 // 				console.log("send_exec_update_to_suscribers("+exec_id+" pending)");
@@ -949,7 +963,7 @@ function register_new_exec(req, res,new_exec){
 // 			res.end("[ERROR] Can not register as new executions_status, because there is an alredy registered executions_status with that exec_id, please try update command\n", 'utf-8');
 // 			return;
 // 		}else{ //already existing, (3.1) first we get the registered json
-// 			var result_id = ExecsModule.find_exec_id(es_servername + ":" + es_port,SERVERDB, appname);
+// 			var result_id = ExecsModule.find_exec_id_from_appname(es_servername + ":" + es_port,SERVERDB, appname);
 // 			result_id.then((result_idResolve) => {
 // 				var elasticsearch = require('elasticsearch');
 // 				var clientb = new elasticsearch.Client({
@@ -969,9 +983,9 @@ function register_new_exec(req, res,new_exec){
 // 						} else if(!error){
 // 							var verify_flush = CommonModule.my_flush(req.connection.remoteAddress ,es_servername + ":" + es_port,SERVERDB);
 // 							verify_flush.then((resolve_result) => {
-// 								resolve ("Succeed" );
+// 								resolve("Succeed");
 // 							},(reject_result)=> {
-// 								reject ( );
+// 								reject();
 // 							});
 // 						}
 // 					});//end query client.index
@@ -1026,14 +1040,12 @@ function register_exec(req, res,new_exec){
 	var exec_id = get_value_json(jsontext,"execution_id"); //(1) parsing the JSON
 	exec_id=exec_id.value;
 	jsontext =update_execution_id_length_on_json(jsontext, exec_id);
-
 	var result_count = ExecsModule.query_count_exec_exec_id(es_servername + ":" + es_port,SERVERDB, exec_id);
 	result_count.then((resultResolve) => {
 		if(resultResolve==0){//new entry (2) we resister new entry
 			var req_date = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
-			jsontext = update_request_time ( jsontext, req_date);
-			jsontext = update_exec_status ( jsontext, "pending");
-
+			jsontext = update_request_time(jsontext, req_date);
+			jsontext = update_exec_status(jsontext, "pending");
 			var result = ExecsModule.register_exec_json(es_servername + ":" + es_port,SERVERDB, jsontext);
 			result.then((resultResolve) => {
 				resultlog = LogsModule.register_log(es_servername + ":" + es_port,SERVERDB, 200,req.connection.remoteAddress,"Add task Succeed",currentdate,res.user);
@@ -1051,17 +1063,17 @@ function register_exec(req, res,new_exec){
 			return;
 		}else if (new_exec==true){
 			res.writeHead(400, {"Content-Type": contentType_text_plain});
-			res.end("[ERROR] Can not register as new executions_status, because there is an alredy registered executions_status with that exec_id, please try update command\n", 'utf-8');
+			res.end("[ERROR] Can not register as new executions_status, because there is an already registered executions_status with that exec_id, please try update command\n", 'utf-8');
 			return;
 		}else{ //already existing, (3.1) first we get the registered json
-// 			var result_id = ExecsModule.find_exec_id(es_servername + ":" + es_port,SERVERDB, appname);
+// 			var result_id = ExecsModule.find_exec_id_from_appname(es_servername + ":" + es_port,SERVERDB, appname);
 			var elasticsearch = require('elasticsearch');
 			var clientb = new elasticsearch.Client({
 				host: es_servername + ":" + es_port,
 				log: 'error'
 			});
-			var algo= new Promise( (resolve,reject) => {
-				jsontext = update_exec_status ( jsontext, "completed");
+			var algo= new Promise((resolve,reject) => {
+				jsontext = update_exec_status(jsontext, "completed");
 				var mergejson = JSON.parse(jsontext);
 				clientb.update({//index replaces the json in the DB with the new one
 					index: SERVERDB,
@@ -1082,7 +1094,7 @@ function register_exec(req, res,new_exec){
 				});//end query client.index
 			});
 			algo.then((resultResolve) => {
-				console.log("send_exec_update_to_suscribers("+exec_id+"type: completed)");
+// 				console.log("send_exec_update_to_suscribers("+exec_id+"type: completed)");
 				send_exec_update_to_suscribers(exec_id,"completed", jsontext);
 				res.writeHead(200, {"Content-Type": contentType_text_plain});
 				res.end(exec_id, 'utf-8');
@@ -1100,11 +1112,74 @@ function register_exec(req, res,new_exec){
 		return;
 	});
 }//register_exec
-
 //**********************************************************
-//this function returns the exec_id of the requested app name, if not exists then it is created a new register with the app name and not hide as only filled fields
+function reject_exec(req, res){
+	"use strict";
+	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
+	var jsontext = {};
+	var exec_id= CommonModule.remove_quotation_marks(find_param(req.body.exec_id, req.query.exec_id));
+	var reason= CommonModule.remove_quotation_marks(find_param(req.body.reason, req.query.reason));
+	jsontext['execution_id'] =exec_id;
+	jsontext['execution_id_length'] =exec_id.length;
+	var result_count = ExecsModule.query_count_exec_exec_id(es_servername + ":" + es_port,SERVERDB, exec_id);
+	result_count.then((resultResolve) => {
+		if(resultResolve==0){//new entry (2) we resister new entry
+			res.writeHead(400, {"Content-Type": contentType_text_plain});
+			res.end("Error exec_id "+exec_id+" not found" + "\n", 'utf-8');
+// 			resultlog = LogsModule.register_log(es_servername + ":" + es_port,SERVERDB,400,req.connection.remoteAddress,"Upload Error",currentdate,res.user);
+			return;
+		}else{ //found document
+				
+			var elasticsearch = require('elasticsearch');
+			var clientb = new elasticsearch.Client({
+				host: es_servername + ":" + es_port,
+				log: 'error'
+			});
+			var algo= new Promise((resolve,reject) => {
+				jsontext = JSON.parse(update_exec_status(JSON.stringify(jsontext), "rejected"));
+				jsontext = JSON.parse(update_reject_reason(JSON.stringify(jsontext), reason));
+				console.log(" jsontext "+JSON.stringify(jsontext));
+				clientb.update({//index replaces the json in the DB with the new one
+					index: SERVERDB,
+					type: 'executions_status',
+					id: exec_id,
+					body: {doc: jsontext}
+				}, function(error, response) {
+					if(error){
+						reject (error);
+					} else if(!error){
+						var verify_flush = CommonModule.my_flush(req.connection.remoteAddress ,es_servername + ":" + es_port,SERVERDB);
+						verify_flush.then((resolve_result) => {
+							resolve ("Succeed" );
+						},(reject_result)=> {
+							reject ( );
+						});
+					}
+				});//end query client.index
+			});
+			algo.then((resultResolve) => {
+// 				console.log("send_exec_update_to_suscribers("+exec_id+"type: rejected)");
+				send_exec_update_to_suscribers(exec_id,"rejected", JSON.stringify(jsontext));
+				res.writeHead(200, {"Content-Type": contentType_text_plain});
+				res.end(exec_id, 'utf-8');
+				return;
+			},(resultReject)=> {
+				res.writeHead(400, {"Content-Type": contentType_text_plain});
+				res.end("error: "+resultReject, 'utf-8');
+				return;
+			});
+		}
+	},(resultReject)=> {
+		res.writeHead(400, {"Content-Type": contentType_text_plain});
+		res.end(resultReject + "\n", 'utf-8'); //error counting projects in the DB
+		resultlog = LogsModule.register_log( es_servername + ":" + es_port,SERVERDB,400,req.connection.remoteAddress,"ERROR on rejected-executions",currentdate,res.user);
+		return;
+	});
+}//reject_exec
+//**********************************************************
+//This function returns the exec_id of the requested app name, if not exists then it is created a new register with the app name and not hide as only filled fields
 function request_exec_id(appname){
-	return new Promise( (resolve,reject) => {
+	return new Promise((resolve,reject) => {
 		if(appname==undefined){
 			reject("appname is undefined");
 		}else{
@@ -1120,17 +1195,17 @@ function request_exec_id(appname){
 					};
 					var result = ExecsModule.register_exec_json(es_servername + ":" + es_port,SERVERDB, jsontext);
 					result.then((resultResolve) => {
-						var result_id = ExecsModule.find_exec_id(es_servername + ":" + es_port,SERVERDB, appname);
+						var result_id = ExecsModule.find_exec_id_from_appname(es_servername + ":" + es_port,SERVERDB, appname);
 						result_id.then((result_idResolve) => {
 							resolve (result_idResolve);
-						},(result_idReject)=> {//error finding the exec id 
+						},(result_idReject)=> {//error finding the exec id
 							reject("error requesting id");
 						});
 					},(resultReject)=> {//error regsiterning the new appname
 						reject(resultReject.text);
 					});
 				}else{
-					var result_id = ExecsModule.find_exec_id(es_servername + ":" + es_port,SERVERDB, appname);
+					var result_id = ExecsModule.find_exec_id_from_appname(es_servername + ":" + es_port,SERVERDB, appname);
 					result_id.then((result_idResolve) => {
 						resolve(result_idResolve);
 					},(result_idReject)=> {//error finding the exec id
@@ -1143,15 +1218,13 @@ function request_exec_id(appname){
 		}
 	});
 }//request_exec_id
-
-//********************************************************** 
+//**********************************************************
 app.get('/get_user_defined_metrics', function(req, res) { //this is for the table executions_status, all the info is in a JSON file
 	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
  	var appid		= CommonModule.remove_quotation_marks(find_param(req.body.appid, req.query.appid));
 	var execfile	= CommonModule.remove_quotation_marks(find_param(req.body.execfile, req.query.execfile));//deprecated, now we use taskid
 	var taskid	= CommonModule.remove_quotation_marks(find_param(req.bodytaskid, req.query.taskid));
 // 	var experimentid = CommonModule.remove_quotation_marks(find_param(req.body.expid, req.query.expid));
-
 	if((taskid==undefined) && (execfile != undefined))
 		taskid=execfile;
 	if(execfile!=undefined){
@@ -1181,15 +1254,13 @@ app.get('/get_user_defined_metrics', function(req, res) { //this is for the tabl
 		});
 	}
 });
-
-//********************************************************** 
+//**********************************************************
 app.get('/get_component_timing', function(req, res) { //this is for the table executions_status, all the info is in a JSON file
 	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
  	var appid		= CommonModule.remove_quotation_marks(find_param(req.body.appid, req.query.appid));
 	var execfile	= CommonModule.remove_quotation_marks(find_param(req.body.execfile, req.query.execfile));//deprecated, now we use taskid
 	var experimentid	= CommonModule.remove_quotation_marks(find_param(req.body.expid, req.query.expid));
 	var taskid	= CommonModule.remove_quotation_marks(find_param(req.bodytaskid, req.query.taskid));
-
 	if((taskid==undefined) && (execfile != undefined))
 		taskid=execfile;
 	if(execfile!=undefined){
@@ -1218,15 +1289,13 @@ app.get('/get_component_timing', function(req, res) { //this is for the table ex
 		});
 	}
 });
-
-//********************************************************** 
+//**********************************************************
 app.get('/get_experiments_stats', function(req, res) { //this is for the table executions_status, all the info is in a JSON file
 	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
  	var appid		= CommonModule.remove_quotation_marks(find_param(req.body.appid, req.query.appid));
 	var execfile	= CommonModule.remove_quotation_marks(find_param(req.body.execfile, req.query.execfile));//deprecated, now we use taskid
 	var experimentid	= CommonModule.remove_quotation_marks(find_param(req.body.expid, req.query.expid));
 	var taskid	= CommonModule.remove_quotation_marks(find_param(req.bodytaskid, req.query.taskid));
-
 	if((taskid==undefined) && (execfile != undefined))
 		taskid=execfile;
 	if(execfile!=undefined){
@@ -1255,8 +1324,7 @@ app.get('/get_experiments_stats', function(req, res) { //this is for the table e
 		});
 	}
 });
-
-//********************************************************** 
+//**********************************************************
 app.get('/count_experiments_metrics', function(req, res) { //this is for the table executions_status, all the info is in a JSON file
 	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
  	var appid		= CommonModule.remove_quotation_marks(find_param(req.body.appid, req.query.appid));
@@ -1292,13 +1360,12 @@ app.get('/count_experiments_metrics', function(req, res) { //this is for the tab
 	}
 });
 
-//********************************************************** 
+//**********************************************************
 app.get('/count_executions', function(req, res) { //this is for the table executions_status, all the info is in a JSON file
 	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
  	var appid		= CommonModule.remove_quotation_marks(find_param(req.body.appid, req.query.appid));
 	var execfile	= CommonModule.remove_quotation_marks(find_param(req.body.execfile, req.query.execfile));//deprecated, now we use taskid
 	var taskid	= CommonModule.remove_quotation_marks(find_param(req.bodytaskid, req.query.taskid));
-
 	if((taskid==undefined) && (execfile != undefined))
 		taskid=execfile;
 	if(execfile!=undefined){
@@ -1328,16 +1395,13 @@ app.get('/count_executions', function(req, res) { //this is for the table execut
 	}
 });
 
-
 //**********************************************************
-// app.get('/list_executions',middleware.ensureAuthenticated, function(req, res) {
 app.get('/list_executions', function(req, res) { //this is for the table executions_status, all the info is in a JSON file
 	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
  	var appid		= CommonModule.remove_quotation_marks(find_param(req.body.appid, req.query.appid));
-// 	var appid ="demo";, execfile ="pthread-example";
+//	var appid ="demo";, taskid ="pthread-example";
 	var execfile	= CommonModule.remove_quotation_marks(find_param(req.body.execfile, req.query.execfile));//deprecated, now we use taskid
 	var taskid	= CommonModule.remove_quotation_marks(find_param(req.bodytaskid, req.query.taskid));
-
 	if((taskid==undefined) && (execfile != undefined))
 		taskid=execfile;
 	if(execfile!=undefined){
@@ -1382,14 +1446,48 @@ app.get('/list_executions', function(req, res) { //this is for the table executi
 });
 
 //**********************************************************
-app.post('/register_new_exec',middleware.ensureAuthenticated, function(req, res) { //this is for the table executions_status, all the info is in a JSON file
+app.get('/older_pending_execution', function(req, res) { //this is for the table executions_status, all the info is in a JSON file
+	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
+	//var appid ="demo";, taskid ="pthread-example";
+	var result_countagg = ExecsModule.count_search_pending_execs(es_servername + ":" + es_port);
+	result_countagg.then((resultCount) => {
+		if(resultCount==0){
+			res.writeHead(200, {"Content-Type": contentType_text_plain});
+			res.end("empty list of pending executions!!");
+			return;
+		}else{
+			var result_agg = ExecsModule.query_search_older_pending_exec(es_servername + ":" + es_port);
+			result_agg.then((resultResolve) => {
+				res.writeHead(200, {"Content-Type": contentType_text_plain});
+				res.end(resultResolve);
+				return;
+			},(resultReject)=> {
+				res.writeHead(400, {"Content-Type": contentType_text_plain});
+				res.end(resultReject + "\n", 'utf-8'); //error counting projects in the DB
+				var resultlog = LogsModule.register_log( es_servername + ":" + es_port,SERVERDB,400,req.connection.remoteAddress,"ERROR on requesting list of executed apps",currentdate,res.user);
+				return;
+			});
+		}
+	},(resultReject)=> {
+		res.writeHead(400, {"Content-Type": contentType_text_plain});
+		res.end("ERROR on counting list of executed apps, the appid+taskid \""+ appid+"_"+taskid+"\" may not be registered\n" + resultReject + "\n", 'utf-8');//error counting projects in the DB
+		var resultlog = LogsModule.register_log( es_servername + ":" + es_port,SERVERDB,400,req.connection.remoteAddress,"ERROR on counting list of executed apps",currentdate,res.user);
+		return;
+	});
+});
+//**********************************************************
+app.post('/register_new_exec', function(req, res) { //this is for the table executions_status, all the info is in a JSON file
 	register_new_exec(req, res,true);
 });
-//********************************************************** 
-app.post('/update_exec',middleware.ensureAuthenticated, function(req, res) { //this is for the table executions_status, all the info is in a JSON file, will update and merge with existing fields
+//**********************************************************
+app.post('/update_exec', function(req, res) { //this is for the table executions_status, all the info is in a JSON file, will update and merge with existing fields
 	register_exec(req, res,false);
 });
-//********************************************************** 
+//**********************************************************
+app.post('/reject_exec', function(req, res) { //this is for the table executions_status, all the info is in a JSON file, will update and merge with existing fields
+	reject_exec(req, res);
+});
+//**********************************************************
 app.get('/get_exec_list', function(req, res) {
 	"use strict";
 	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
@@ -1426,9 +1524,8 @@ app.get('/get_exec_list', function(req, res) {
 		return;
 	});
 });
-
-//**********************************************************
-app.get('/query_exec',middleware.ensureAuthenticated, function(req, res) {
+//*****************Deprecated not to use *****************************************
+app.get('/query_exec_appname', function(req, res) {
 	var currentdate	= dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
 	var pretty 		= find_param(req.body.pretty, req.query.pretty);
 	var appname	= find_param(req.body.app, req.query.app);
@@ -1446,7 +1543,7 @@ app.get('/query_exec',middleware.ensureAuthenticated, function(req, res) {
 			res.end("Not entries found for that Execution : " + appname+ "\n", 'utf-8');
 			return;
 		}else{
-			var result_id = ExecsModule.find_exec_id(es_servername + ":" + es_port,SERVERDB, appname, pretty);
+			var result_id = ExecsModule.find_exec_id_from_appname(es_servername + ":" + es_port,SERVERDB, appname, pretty);
 			result_id.then((result_idResolve) => {
 				var mybody_obj= ExecsModule.compose_query_id(result_idResolve);
 				var searching = ExecsModule.query_exec(es_servername+":"+es_port,SERVERDB, mybody_obj, pretty);//.replace(/\//g, '\\/');
@@ -1476,7 +1573,48 @@ app.get('/query_exec',middleware.ensureAuthenticated, function(req, res) {
 	});
 });
 //**********************************************************
-app.get('/es_query_exec', middleware.ensureAuthenticated, function(req, res) {
+app.get('/query_exec', function(req, res) {
+	var currentdate	= dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
+	var pretty 		= find_param(req.body.pretty, req.query.pretty);
+	var exec_id	= find_param(req.body.exec_id, req.query.exec_id);
+	exec_id= validate_parameter(exec_id,"app",currentdate,res.user, req.connection.remoteAddress);//generates the error log if not defined
+	if(exec_id==undefined) exec_id="";
+	if (exec_id.length == 0){
+		res.writeHead(400, { 'Content-Type': contentType_text_plain });
+		res.end("\n400: Bad Request, missing " + "app" + ".\n");
+		return;} 
+	//*******************************************
+	var result_count = ExecsModule.query_count_exec_exec_id(es_servername + ":" + es_port,SERVERDB, exec_id);
+	result_count.then((resultResolve) => {
+		if(resultResolve==0){//new entry (2) we resister new entry
+			res.writeHead(200, {"Content-Type": contentType_text_plain});
+			res.end("Not entries found for that Execution : " + appname+ "\n", 'utf-8');
+			return;
+		}else{
+				var mybody_obj= ExecsModule.compose_query_id(exec_id);
+				var searching = ExecsModule.query_exec(es_servername+":"+es_port,SERVERDB, mybody_obj, pretty);//.replace(/\//g, '\\/');
+				searching.then((resultFind) => {
+					res.writeHead(200, {"Content-Type": "application/json"});
+					res.end(resultFind+"\n");
+					var resultloga = LogsModule.register_log(es_servername+":"+es_port,SERVERDB,200,req.connection.remoteAddress,"ES-QUERY executions_status granted to query:"
+						+JSON.stringify(mybody_obj),currentdate,res.user);
+				},(resultReject)=> {
+					res.writeHead(400, {"Content-Type": contentType_text_plain});
+					res.end("es_query: Bad Request "+resultReject +"\n");
+					var resultlogb = LogsModule.register_log(es_servername+":"+es_port,SERVERDB,400,req.connection.remoteAddress,"ES-QUERY executions_status BAD Request on query:"
+						+JSON.stringify(mybody_obj),currentdate,res.user);
+				});
+				return;
+		}
+	},(resultReject)=> {
+		res.writeHead(400, {"Content-Type": contentType_text_plain});
+		res.end(resultReject + "\n", 'utf-8');//error counting projects in the DB
+		resultlog = LogsModule.register_log( es_servername + ":" + es_port,SERVERDB,400,req.connection.remoteAddress,"ERROR on Update-register executions_status",currentdate,res.user);
+		return;
+	});
+});
+//**********************************************************
+app.get('/es_query_exec', function(req, res) {
 	"use strict";
 	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
 	var QueryBody 	= find_param(req.body.QueryBody, req.query.QueryBody);
