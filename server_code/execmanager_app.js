@@ -948,10 +948,43 @@ function register_new_exec(req, res,new_exec){
 				resultlog = LogsModule.register_log(es_servername + ":" + es_port,SERVERDB, 200,req.connection.remoteAddress,"Add task Succeed",currentdate,res.user);
 				var exec_id = find_id(resultResolve.text);
 				jsontext =update_execution_id_length_on_json(jsontext, exec_id); // need update the already registered json
-// 				console.log("send_exec_update_to_suscribers("+exec_id+" pending)");
 				send_exec_update_to_suscribers(exec_id, "pending", jsontext);
-				res.writeHead(resultResolve.code, {"Content-Type": contentType_text_plain});
-				res.end(exec_id, 'utf-8');
+				//we wish to update this string jsontext into the execmanager for storing the exec_id field.
+				var elasticsearch = require('elasticsearch');
+				var clientb = new elasticsearch.Client({
+					host: es_servername + ":" + es_port,
+					log: 'error'
+				});
+				var algo= new Promise((resolve,reject) => {
+					var mergejson = JSON.parse(jsontext);
+					clientb.update({//index replaces the json in the DB with the new one
+						index: SERVERDB,
+						type: 'executions_status',
+						id: exec_id,
+						body: {doc: mergejson}
+					}, function(error, response) {
+						if(error){
+							reject (error);
+						} else if(!error){
+							var verify_flush = CommonModule.my_flush(req.connection.remoteAddress ,es_servername + ":" + es_port,SERVERDB);
+							verify_flush.then((resolve_result) => {
+								resolve ("Succeed" );
+							},(reject_result)=> {
+								reject ( );
+							});
+						}
+					});//end query client.index
+				});
+				algo.then((resultResolveupdate) => {
+					res.writeHead(200, {"Content-Type": contentType_text_plain});
+					res.end(exec_id, 'utf-8');
+					return;
+				},(resultReject)=> {
+					res.writeHead(400, {"Content-Type": contentType_text_plain});
+					res.end("error: "+resultReject, 'utf-8');
+					return;
+				});
+				//***************************************************
 			},(resultReject)=> {
 				res.writeHead(resultReject.code, {"Content-Type": contentType_text_plain});
 				res.end(resultReject.text + "\n", 'utf-8');
@@ -1113,12 +1146,14 @@ function register_exec(req, res,new_exec){
 	});
 }//register_exec
 //**********************************************************
-function reject_exec(req, res){
+function change_status_exec(req, res, newstatus){
 	"use strict";
 	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
 	var jsontext = {};
 	var exec_id= CommonModule.remove_quotation_marks(find_param(req.body.exec_id, req.query.exec_id));
 	var reason= CommonModule.remove_quotation_marks(find_param(req.body.reason, req.query.reason));
+	if(exec_id==undefined) exec_id="";
+	if(reason==undefined) reason="";
 	jsontext['execution_id'] =exec_id;
 	jsontext['execution_id_length'] =exec_id.length;
 	var result_count = ExecsModule.query_count_exec_exec_id(es_servername + ":" + es_port,SERVERDB, exec_id);
@@ -1129,14 +1164,13 @@ function reject_exec(req, res){
 // 			resultlog = LogsModule.register_log(es_servername + ":" + es_port,SERVERDB,400,req.connection.remoteAddress,"Upload Error",currentdate,res.user);
 			return;
 		}else{ //found document
-				
 			var elasticsearch = require('elasticsearch');
 			var clientb = new elasticsearch.Client({
 				host: es_servername + ":" + es_port,
 				log: 'error'
 			});
 			var algo= new Promise((resolve,reject) => {
-				jsontext = JSON.parse(update_exec_status(JSON.stringify(jsontext), "rejected"));
+				jsontext = JSON.parse(update_exec_status(JSON.stringify(jsontext), newstatus));
 				jsontext = JSON.parse(update_reject_reason(JSON.stringify(jsontext), reason));
 				console.log(" jsontext "+JSON.stringify(jsontext));
 				clientb.update({//index replaces the json in the DB with the new one
@@ -1175,7 +1209,7 @@ function reject_exec(req, res){
 		resultlog = LogsModule.register_log( es_servername + ":" + es_port,SERVERDB,400,req.connection.remoteAddress,"ERROR on rejected-executions",currentdate,res.user);
 		return;
 	});
-}//reject_exec
+}//change_status_exec
 //**********************************************************
 //This function returns the exec_id of the requested app name, if not exists then it is created a new register with the app name and not hide as only filled fields
 function request_exec_id(appname){
@@ -1485,7 +1519,11 @@ app.post('/update_exec', function(req, res) { //this is for the table executions
 });
 //**********************************************************
 app.post('/reject_exec', function(req, res) { //this is for the table executions_status, all the info is in a JSON file, will update and merge with existing fields
-	reject_exec(req, res);
+	change_status_exec(req, res,"rejected");
+});
+//**********************************************************
+app.post('/started_exec', function(req, res) { //this is for the table executions_status, all the info is in a JSON file, will update and merge with existing fields
+	change_status_exec(req, res,"started");
 });
 //**********************************************************
 app.get('/get_exec_list', function(req, res) {
