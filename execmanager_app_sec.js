@@ -848,7 +848,7 @@ app.get('/_flush', function(req, res) {
 	});
 });
 //******************************************************************************
-app.get('/query_metadata', function(req, res) {
+app.get('/query_metadata',middleware.ensureAuthenticated, function(req, res) {
 	"use strict";
 	var pretty = find_param(req.body.pretty, req.query.pretty);
 	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
@@ -886,7 +886,7 @@ app.get('/query_metadata', function(req, res) {
 	});
 });
 //**********************************************************
-app.get('/es_query_metadata', function(req, res) {
+app.get('/es_query_metadata', middleware.ensureAuthenticated, function(req, res) {
 	"use strict";
 	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
 	var QueryBody 	= find_param(req.body.QueryBody, req.query.QueryBody);
@@ -1219,7 +1219,7 @@ function request_exec_id(appname){
 	});
 }//request_exec_id
 //**********************************************************
-app.get('/get_user_defined_metrics', function(req, res) { //this is for the table executions_status, all the info is in a JSON file
+app.get('/get_user_defined_metrics',middleware.ensureAuthenticated, function(req, res) { //this is for the table executions_status, all the info is in a JSON file
 	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
  	var appid		= CommonModule.remove_quotation_marks(find_param(req.body.appid, req.query.appid));
 	var execfile	= CommonModule.remove_quotation_marks(find_param(req.body.execfile, req.query.execfile));//deprecated, now we use taskid
@@ -1232,6 +1232,26 @@ app.get('/get_user_defined_metrics', function(req, res) { //this is for the tabl
 			taskid=execfile;
 	}
 	var experimentid = CommonModule.remove_quotation_marks(find_param(req.body.execution, req.query.execution));
+// 			var query_permission =request_exec_permission(res.user,pretty, experimentid);
+// 			query_permission.then((result) => {
+// 				for (var j = 0; j < 1; j++) {// 1 insted of result.totalkeys for considering only the first entry
+// 					console.log("Permission "+j+" "+result.permission[j]);
+// 					if(result.permission[j] == "deny"){//permision denied
+// 						res.writeHead(403, {"Content-Type": contentType_text_plain});
+// 						res.end("Access DENY: You may not have permission to download some file in the folder\n");
+// 						return;
+// 					}else if (result.permission[j] != "permit"){//error procesing the request
+// 						res.writeHead(400, {"Content-Type": contentType_text_plain});
+// 						res.end("ERROR processing the permissions\n");
+// 						return;
+// 					}
+// 				}
+// 				console.log("permission granted");
+// 			},(resultReject)=> {
+// 				res.writeHead(400, {'Content-Type': contentType_text_plain });
+// 				res.end("400 unexpected error "+resultReject);
+// 				return;
+// 			});
 	if((taskid==undefined) || (appid==undefined) || ( experimentid ==undefined ) ){
 		res.writeHead(400, { 'Content-Type': contentType_text_plain });
 		res.end("\n400: Bad Request, missing " + "parameter" + ".\n");
@@ -1396,7 +1416,7 @@ app.get('/count_executions', function(req, res) { //this is for the table execut
 });
 
 //**********************************************************
-app.get('/list_executions', function(req, res) { //this is for the table executions_status, all the info is in a JSON file
+app.get('/list_executions',middleware.ensureAuthenticated, function(req, res) { //this is for the table executions_status, all the info is in a JSON file
 	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
  	var appid		= CommonModule.remove_quotation_marks(find_param(req.body.appid, req.query.appid));
 //	var appid ="demo";, taskid ="pthread-example";
@@ -1446,7 +1466,7 @@ app.get('/list_executions', function(req, res) { //this is for the table executi
 });
 
 //**********************************************************
-app.get('/older_pending_execution', function(req, res) { //this is for the table executions_status, all the info is in a JSON file
+app.get('/older_pending_execution',middleware.ensureAuthenticated, function(req, res) { //this is for the table executions_status, all the info is in a JSON file
 	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
 	//var appid ="demo";, taskid ="pthread-example";
 	var result_countagg = ExecsModule.count_search_pending_execs(es_servername + ":" + es_port);
@@ -1476,11 +1496,11 @@ app.get('/older_pending_execution', function(req, res) { //this is for the table
 	});
 });
 //**********************************************************
-app.post('/register_new_exec', function(req, res) { //this is for the table executions_status, all the info is in a JSON file
+app.post('/register_new_exec',middleware.ensureAuthenticated, function(req, res) { //this is for the table executions_status, all the info is in a JSON file
 	register_new_exec(req, res,true);
 });
 //**********************************************************
-app.post('/update_exec', function(req, res) { //this is for the table executions_status, all the info is in a JSON file, will update and merge with existing fields
+app.post('/update_exec',middleware.ensureAuthenticated, function(req, res) { //this is for the table executions_status, all the info is in a JSON file, will update and merge with existing fields
 	register_exec(req, res,false);
 });
 //**********************************************************
@@ -1525,7 +1545,7 @@ app.get('/get_exec_list', function(req, res) {
 	});
 });
 //*****************Deprecated not to use *****************************************
-app.get('/query_exec_appname', function(req, res) {
+app.get('/query_exec_appname',middleware.ensureAuthenticated, function(req, res) {
 	var currentdate	= dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
 	var pretty 		= find_param(req.body.pretty, req.query.pretty);
 	var appname	= find_param(req.body.app, req.query.app);
@@ -1573,7 +1593,7 @@ app.get('/query_exec_appname', function(req, res) {
 	});
 });
 //**********************************************************
-app.get('/query_exec', function(req, res) {
+app.get('/query_exec',middleware.ensureAuthenticated, function(req, res) {
 	var currentdate	= dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
 	var pretty 		= find_param(req.body.pretty, req.query.pretty);
 	var exec_id	= find_param(req.body.exec_id, req.query.exec_id);
@@ -1614,7 +1634,7 @@ app.get('/query_exec', function(req, res) {
 	});
 });
 //**********************************************************
-app.get('/es_query_exec', function(req, res) {
+app.get('/es_query_exec', middleware.ensureAuthenticated, function(req, res) {
 	"use strict";
 	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
 	var QueryBody 	= find_param(req.body.QueryBody, req.query.QueryBody);
