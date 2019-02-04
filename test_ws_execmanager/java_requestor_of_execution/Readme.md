@@ -41,8 +41,7 @@ And information for the Deploy Manager in a JSON file, which at least has to con
    * **Identification of the application** to be requested, for instance "montanana_demo"
 
    * **Identification of the device** where will be run the application, for instance "node01"
-   
-   
+
 It is still pending to be defined, the current structure is:
 
 ```json
@@ -61,6 +60,9 @@ WARNING: If the websocket connection is broken, then the notifications will be l
 NOTICE: In case of doubt if a notification is lost, the subscriber can always possible to query the status of any particular execution.
 
 NOTICE: The Application has to be instrumented with the MF-Library in order to report of the completion to the Execution Manager.
+
+
+The provided example performs:
 
 The subscription in done by a websocket connection to ***ws://serveraddress:serverport/***
 
@@ -83,6 +85,10 @@ you can compile and run it with the script
 bash test_client_ws_suscriber_execmanager.sh;
 ```
 
+The demonstratione example requires, after that, that be started the requested execution.
+Please, refer to [app_to_be_executed][app]
+That will allow to recieve the notitication of the completion of the requested task.
+
 ### 3.1 VIDEO
 
 Video demo avaiblable at  [https://youtu.be/6s6AOytHV6I][video]
@@ -91,13 +97,10 @@ Video demo avaiblable at  [https://youtu.be/6s6AOytHV6I][video]
 " target="_blank"><img src="http://img.youtube.com/vi/6s6AOytHV6I/0.jpg" 
 alt="IMAGE ALT TEXT HERE" width="240" height="180" border="10" /></a>
 
- 
 
 ## Acknowledgment
 This project is realized through [PHANTOM][phantom].
 The PHANTOM project receives funding under the European Union's Horizon 2020 Research and Innovation Programme under grant agreement number 688146.
-
-
 
 
 ## Main Contributors
@@ -117,7 +120,8 @@ The PHANTOM project receives funding under the European Union's Horizon 2020 Res
 Copyright (C) 2014,2019 University of Stuttgart
 
 [Apache License v2](LICENSE).
- 
+
+[app]: https://github.com/PHANTOM-Platform/Execution-Manager/tree/master/test_ws_execmanager/app_to_be_executed
 [output]: https://github.com/PHANTOM-Platform/testing_integration/blob/master/app_output/exec_stats.json
 [video]: https://youtu.be/6s6AOytHV6I
 [phantom]: http://www.phantom-project.org
