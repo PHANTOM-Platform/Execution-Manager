@@ -81,13 +81,12 @@
 		params=${fname#*\"}
 		params=${params#*	}
 		user=${params%%	*};
-		userpw=${params#*	};
-		userpw=${userpw%% };
-		password=${userpw%%	};	
-		echo "name    is: \"${name}\""; 
+		userpw=${params#*	};#remove ending tabs
+		userpw=${userpw%% };#remove ending spaces
+		password=${userpw%%	};#remove ending tabs
+		echo "name    is: \"${name}\"";
 		echo "user_id is: \"${user}\"";
-		echo "password is: \"${password}\"";
-		echo ;	
+		echo -e "password is: \"${password}\"\n";
 		curl -s -H "Content-Type: application/json" -XPOST http://${server}:${port}/signup?name="${name}"\&email="${user}"\&pw="${password}";
 		curl -s -XGET http://${server}:${port}/_flush > /dev/null;
 	done <"list_of_users.ini";
