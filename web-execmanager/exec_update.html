@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html lang="en" xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
-	<meta name="description" content="Page for register a new exeuction, or update an already registered in the PHANTOM EXECUTION-MANAGER-server">
+	<meta name="description" content="Page for TESTING the register a new execution, or update an already registered in the PHANTOM EXECUTION-MANAGER-server">
 	<meta name="keywords" content="HTML,CSS,JavaScript">
 	<meta name="author" content="Jose Miguel Montañana, hpcjmont@hlrs.de">
 	<meta name="reply-to" content="hpcjmont@hlrs.de">
@@ -23,16 +23,15 @@
 	<div id="menu_login" style="display:none"></div>
 
 	<div id="phantom_operation">
-		<h1><b>Update an APP execution</b></h1>
+		<h1><b>Update an APP execution (this interface is only for testing purposes)</b></h1>
 
 		<hr> <h2><b> Online formular: </b></h2>
-
 		<form ref='uploadForm'
 			id='uploadForm'
-			name="myForm" >
-			&emsp; Json File (REQUIRED) <input type="file" name="UploadJSON" id="UploadJSON"/><br> 
+			name="myForm">
+			&emsp; Json File (REQUIRED) <input type="file" name="UploadJSON" id="UploadJSON"/><br>
 			<div class="center">
-				<input type="submit" onclick="return update_exec_with_token( document.getElementById('UploadJSON') )" value="Register APP"/> 
+				<input type="submit" onclick="return update_exec_with_token( document.getElementById('UploadJSON') )" value="Register APP"/>
 			</div> 
 		</form>
 
