@@ -6,8 +6,7 @@
 
 Thr purpose of the files here are for provide a description and examples of the integration and interaction between the PHANTOM tools, as well as within the users and instrumented applications.
 
-
- <p align="center">
+<p align="center">
 <a href="https://github.com/PHANTOM-Platform/testing_integration/blob/master/interaction_tool-em-dm-app.png">
 <img src="https://github.com/PHANTOM-Platform/testing_integration/blob/master/interaction_tool-em-dm-app.png" align="middle" width="70%" height="70%" title="Schema" alt="interaction between requesting tool + Exec Manager + Deploy Manager + Application">
 </a> </p>
@@ -29,6 +28,12 @@ The application which is instrumented with additional code for monnitoring, and 
 * The notification of the completion of an app consists of a JSON file, which is the same as the one send by the application to the Execution Manager whent its ends.
 
 A video of these examples running is available at [https://youtu.be/6s6AOytHV6I][video]
+
+
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=6s6AOytHV6I
+" target="_blank"><img src="http://img.youtube.com/vi/6s6AOytHV6I/0.jpg" 
+alt="IMAGE ALT TEXT HERE" width="240" height="180" border="10" /></a>
+
 
 More detailed description is available on the respective folders.
 
@@ -58,5 +63,6 @@ Copyright (C) 2014,2019 University of Stuttgart
 [pi_app]: https://github.com/PHANTOM-Platform/testing_integration/tree/master/app_to_be_executed
 [java_app]: https://github.com/PHANTOM-Platform/testing_integration/tree/master/java_requestor_of_execution
 [video]: https://youtu.be/6s6AOytHV6I
+[videob]: https://youtu.be/n7GHXamoIcg
 [phantom]: http://www.phantom-project.org
 
