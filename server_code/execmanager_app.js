@@ -43,8 +43,6 @@ process.title = 'PHANTOM-Execution-Manager-server';
 	const LogsModule 	= require('./support-logs');
 	const CommonModule 	= require('./support-common');
 	const supportmkdir 	= require('./mkdirfullpath'); 
-	const TasksModule	= require('./support-tasks-man');
-	const DeviceModule	= require('./support-devices-man');
 	const ExecsModule	= require('./support-execs-man');
 	//*********************** SUPPORT JS file, for TOKENS SUPPORT *******
 	var bodyParser	= require('body-parser');
@@ -845,66 +843,6 @@ app.get('/_flush', function(req, res) {
 	},(reject_result)=> {
 		res.writeHead(reject_result.code, {"Content-Type": contentType_text_plain});
 		res.end(reject_result.text+"\n", 'utf-8');
-	});
-});
-//******************************************************************************
-app.get('/query_metadata', function(req, res) {
-	"use strict";
-	var pretty = find_param(req.body.pretty, req.query.pretty);
-	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
-	//***************************************
-	var filepath =find_param(req.body.Path,req.query.Path);
-	if (filepath != undefined)
-		filepath=remove_quotation_marks(filepath);
-	//***************************************
-	var filename =find_param(req.body.filename,req.query.filename);
-	if (filename != undefined)
-		filename=remove_quotation_marks(filename);
-	//***************************************
-	var project =find_param(req.body.project,req.query.project);
-	if (project != undefined)
-		project=remove_quotation_marks(project);
-	//***************************************
-	var source =find_param(req.body.source,req.query.source);
-	if (source != undefined)
-		source=remove_quotation_marks(source);
-	var bodyquery= TasksModule.compose_query(project,source,filepath, filename);
-	//1.1- find id of the existing doc for such path filename
-	//console.log("Qquery is "+JSON.stringify(bodyquery));
-	var searching = TasksModule.query_metadata(es_servername+":"+es_port,SERVERDB,bodyquery, pretty);
-	var resultlog="";
-	searching.then((resultFind) => {
-		res.writeHead(200, {"Content-Type": "application/json"});
-		res.end(resultFind+"\n");
-		resultlog = LogsModule.register_log(es_servername+":"+es_port,SERVERDB,200,req.connection.remoteAddress,"QUERY METADATA granted to query:"
-			+JSON.stringify(bodyquery),currentdate,res.user);
-	},(resultReject)=> {
-		res.writeHead(400, {"Content-Type": contentType_text_plain});
-		res.end("querymetadata: Bad Request "+resultReject +"\n");
-		resultlog = LogsModule.register_log(es_servername+":"+es_port,SERVERDB,400,req.connection.remoteAddress,"QUERY METADATA BAD Request on query:"
-			+JSON.stringify(bodyquery),currentdate,res.user);
-	});
-});
-//**********************************************************
-app.get('/es_query_metadata', function(req, res) {
-	"use strict";
-	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
-	var QueryBody 	= find_param(req.body.QueryBody, req.query.QueryBody);
-	var pretty 		= find_param(req.body.pretty, req.query.pretty);
-	var mybody_obj	= JSON.parse( QueryBody);
-	//1.1- find id of the existing doc for such path filename JSON.stringify(
-	var searching = TasksModule.query_metadata(es_servername+":"+es_port,SERVERDB, mybody_obj, pretty); //.replace(/\//g, '\\/');
-	var resultlog="";
-	searching.then((resultFind) => {
-		res.writeHead(200, {"Content-Type": "application/json"});
-		res.end(resultFind+"\n");
-		resultlog = LogsModule.register_log(es_servername+":"+es_port,SERVERDB,200,req.connection.remoteAddress,"ES-QUERY METADATA granted to query:"
-			+JSON.stringify(QueryBody),currentdate,res.user);
-	},(resultReject)=> {
-		res.writeHead(400, {"Content-Type": contentType_text_plain});
-		res.end("es_query: Bad Request "+resultReject +"\n");
-		resultlog = LogsModule.register_log(es_servername+":"+es_port,SERVERDB,400,req.connection.remoteAddress,"ES-QUERY METADATA BAD Request on query:"
-			+JSON.stringify(QueryBody),currentdate,res.user);
 	});
 });
 //**********************************************************
