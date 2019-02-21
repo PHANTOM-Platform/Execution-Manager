@@ -35,6 +35,7 @@
 			APP name (optional): <input type="text" name="appname" id="appname" value=""> leave empty if not wish to filter by name<br>
 			<input type="hidden" name="pretty" value="true">
 			<!-- upload button-->
+			<input type="submit" onclick="return list_execs(5,document.getElementById('appname').value)" value="Show EXEC-STATUS in Table" />			
 			<input type="submit" onclick="return list_execs(1,document.getElementById('appname').value)" value="Show results in Table" />
 			<input type="submit" onclick="return list_execs(2,document.getElementById('appname').value)" value="Show results as JSON" />
 			<input type="submit" onclick="return list_execs(3,document.getElementById('appname').value)" value="Show raw reply from server" />
