@@ -427,7 +427,7 @@ query_search_agg_id: function(es_server, appid, exec_id){
 }, //end query_search_agg_id
 // ----------------------------------------
 count_search_pending_execs: function(es_server){
-	const my_index = "manager_db";
+	const my_index = "exec_manager_db";
 	const my_type = "executions_status";
 	return new Promise( (resolve,reject) => {
 		var elasticsearch = require('elasticsearch');
@@ -459,7 +459,7 @@ count_search_pending_execs: function(es_server){
 
 // ----------------------------------------
 query_search_older_pending_exec: function(es_server){
-	const my_index = "manager_db";
+	const my_index = "exec_manager_db";
 	const my_type = "executions_status";
 	return new Promise( (resolve,reject) => {
 		var elasticsearch = require('elasticsearch');

@@ -24,8 +24,8 @@ process.title = 'PHANTOM-Execution-Manager-server';
 	const SERVERNAMElong ="PHANTOM Execution Manager";
 	const SERVERNAME ='PHANTOM Execution Manager';
 	const SERVERPORT = 8700;
-	const SERVERDB = "manager_db";
-	
+	const SERVERDB = "exec_manager_db";
+
 	// This will be allocated in the home folder of the user running nodejs !! os.homedir()+File_Server_Path
 //******************** PACKAGES AND SOME GLOBAL VARIABLES ************
 	const express 		= require('express');
@@ -244,7 +244,7 @@ const logsmapping = {
 			"message": {
 				"type": "string"
 			},
-			"date": { 
+			"date": {
 				"type": "date",
 				"store": "yes",
 				"format": "yyyy-MM-dd'T'HH:mm:ss.SSS",
@@ -312,16 +312,16 @@ function lowercase(input_string){
 	var result="";
 	for (var j = 0; j < input_string.length; j++) {
 // 		input_string.replaceAt(j, character.toLowerCase());
-        var charCode = input_string.charCodeAt(j);
-        if (charCode < 65 || charCode > 90) {
-            // NOT an uppercase ASCII character
-            // Append the original character
-            result += input_string.substr(j, 1);
-        } else {
-            // Character in the ['A'..'Z'] range
-            // Append the lowercase character
-            result += String.fromCharCode(charCode + 32);
-        }
+		var charCode = input_string.charCodeAt(j);
+		if (charCode < 65 || charCode > 90) {
+			// NOT an uppercase ASCII character
+			// Append the original character
+			result += input_string.substr(j, 1);
+		} else {
+			// Character in the ['A'..'Z'] range
+			// Append the lowercase character
+			result += String.fromCharCode(charCode + 32);
+		}
 	}
 	return (result);
 }
@@ -1644,9 +1644,9 @@ app.post('/signup', function(req, res) {
 		resultlog = LogsModule.register_log( es_servername+":"+es_port,SERVERDB,400,req.connection.remoteAddress,"SIGNUP Bad Request, Empty Email",currentdate,"");
 		return;
 	}
-	console.log("[LOG]: REGISTER USER+PW");
+	console.log("[LOG]: REGISTER USER+PW ");
 	console.log("   " +colours.FgYellow + colours.Bright + " user: " + colours.Reset + email );
-	console.log("   " +colours.FgYellow + colours.Bright + " request from IP: " + req.connection.remoteAddress + colours.Reset);
+	console.log("   " +colours.FgYellow + colours.Bright + " request from IP: " + req.connection.remoteAddress + colours.Reset+"\n");
 	if(( req.connection.remoteAddress!= ips[0] ) &&( req.connection.remoteAddress!=ips[1])&&( req.connection.remoteAddress!=ips[2])){
 		console.log(" ACCESS DENIED from IP address: "+req.connection.remoteAddress);
 		var messagea = "REGISTER USER '"+ email + "' FORBIDDEN access from external IP";
