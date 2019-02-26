@@ -426,7 +426,7 @@ query_search_agg_id: function(es_server, appid, exec_id){
 	});
 }, //end query_search_agg_id
 // ----------------------------------------
-count_search_pending_execs: function(es_server){
+count_search_pending_execs: function(es_server, project){
 	const my_index = "exec_manager_db";
 	const my_type = "executions_status";
 	return new Promise( (resolve,reject) => {
@@ -436,6 +436,26 @@ count_search_pending_execs: function(es_server){
 			host: es_server,
 			log: 'error'
 		});
+		if(project!=undefined){
+		client.search({
+			index: my_index,
+			type: my_type,
+			body: { "query":{"bool":{"must": [
+					{"match_phrase": {"req_status":mytype_exec}}, {"term": {"req_status_length":mytype_exec.length}}, { "match_phrase": {"project":project }}
+					]}},
+					"size":0
+				}
+		}, function(error, response) {
+			if(error) {
+				reject ("error"+error+"\n for index "+my_index);
+			}
+			if(response !== undefined) {
+				resolve(JSON.stringify(response.hits.total, null, 4));
+			}else{
+				resolve ("unexpected error, for index "+my_index);//size
+			}
+		});
+		}else{
 		client.search({
 			index: my_index,
 			type: my_type,
@@ -454,11 +474,12 @@ count_search_pending_execs: function(es_server){
 				resolve ("unexpected error, for index "+my_index);//size
 			}
 		});
+		}
 	});
 }, //count_search_pending_execs
 
 // ----------------------------------------
-query_search_older_pending_exec: function(es_server){
+query_search_older_pending_exec: function(es_server, project){
 	const my_index = "exec_manager_db";
 	const my_type = "executions_status";
 	return new Promise( (resolve,reject) => {
@@ -468,6 +489,30 @@ query_search_older_pending_exec: function(es_server){
 			host: es_server,
 			log: 'error'
 		});
+		if(project!=undefined){
+		client.search({
+			index: my_index,
+			type: my_type,
+			body: { "query":{"bool":{"must": [
+					{"match_phrase": {"req_status":mytype_exec}}, {"term": {"req_status_length":mytype_exec.length}}, { "match_phrase": {"project":project }}
+					]}},
+					"sort": { "req_date": { "order": "asc" }},
+					"size":1
+				}
+		}, function(error, response) {
+			if(error) {
+				reject ("error"+error+"\n for index "+my_index);
+			}
+			if(response !== undefined) {
+				var newArray = response.hits.hits.map(function(hit) {
+					return hit._source;
+				});
+				resolve(JSON.stringify(newArray, null, 4));
+			}else{
+				resolve ("unexpected error, for index "+my_index);//size
+			}
+		});
+		}else{
 		client.search({
 			index: my_index,
 			type: my_type,
@@ -490,6 +535,7 @@ query_search_older_pending_exec: function(es_server){
 				resolve ("unexpected error, for index "+my_index);//size
 			}
 		});
+		}
 	});
 }, //query_search_older_pending_exec
 

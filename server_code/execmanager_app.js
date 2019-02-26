@@ -356,7 +356,7 @@ function consolelogjson(JSONstring ){
 		console.log("pos: " + jsonobj.indexOf(labeltxt));
 	}
 }
-//*********************************************************************	
+//*********************************************************************
 //the purpose is to remove the fields/properties path,path_length, filename,filename_length, if present.
 //and generate thos fields/properties from the input parameters
 function update_filename_path_on_json(JSONstring, project,source, filename, path){
@@ -538,13 +538,12 @@ function get_source_project_json(JSONstring){
 	}
 	return myres;
 }
-//*********************************************************************	
-// function generate_json_example(){ 
+//*********************************************************************
+// function generate_json_example(){
 // 	var Employee = {
 // 		firstname: "Pedro",
 // 		lastname: "Picapiedra"
 // 	}
-// 	console.log(Employee);
 // 	delete Employee.firstname; //delete one property
 // 	var label='age';
 // 	Employee[label]="32"; //add one property
@@ -1421,14 +1420,15 @@ app.get('/list_executions', function(req, res) { //this is for the table executi
 app.get('/older_pending_execution', function(req, res) { //this is for the table executions_status, all the info is in a JSON file
 	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
 	//var appid ="demo";, taskid ="pthread-example";
-	var result_countagg = ExecsModule.count_search_pending_execs(es_servername + ":" + es_port);
+	var project = find_param(req.body.project, req.query.project); //aa1
+	var result_countagg = ExecsModule.count_search_pending_execs(es_servername + ":" + es_port, project);//aa1
 	result_countagg.then((resultCount) => {
 		if(resultCount==0){
 			res.writeHead(200, {"Content-Type": contentType_text_plain});
-			res.end("empty list of pending executions!!");
+			res.end("{\"execution_id\":\"null\"}"); //aa1
 			return;
 		}else{
-			var result_agg = ExecsModule.query_search_older_pending_exec(es_servername + ":" + es_port);
+			var result_agg = ExecsModule.query_search_older_pending_exec(es_servername + ":" + es_port, project);//aa1
 			result_agg.then((resultResolve) => {
 				res.writeHead(200, {"Content-Type": contentType_text_plain});
 				res.end(resultResolve);
