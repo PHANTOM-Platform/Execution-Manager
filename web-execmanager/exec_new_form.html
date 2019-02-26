@@ -1,0 +1,303 @@
+<!DOCTYPE HTML>
+<html lang="en" xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta name="description" content="Main page of the PHANTOM Resource Manager-server">
+	<meta name="keywords" content="HTML,CSS,JavaScript">
+	<meta name="author" content="Jose Miguel Montañana, hpcjmont@hlrs.de">
+	<meta name="reply-to" content="hpcjmont@hlrs.de">
+	<meta name="copyright" content="Copyright (C) 2018 University of Stuttgart">
+	<meta name="language" content="EN">
+	<meta name="revised" content="July 4, 2018" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="robots" content="noindex">
+	<meta name="googlebot" content="noindex">
+	<meta charset="utf-8">
+
+	<title>PHANTOM RESOURCE-MANAGER</title>
+	<link rel="stylesheet" type="text/css" href="phantom.css">
+	<script src="resourcemanager.js"></script> 		
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script>
+function update_fpga_details(selection) {
+	if(selection=="zc706"){
+		document.getElementById("fpga_logic_gates").value = "218600";
+		document.getElementById("fpga_slice_regs").value = "437200";
+		document.getElementById("fpga_xadc").value = "1";
+		document.getElementById("fpga_iob").value = "362";
+	}else{
+		document.getElementById("fpga_logic_gates").value = "0";
+		document.getElementById("fpga_slice_regs").value = "0";
+		document.getElementById("fpga_xadc").value = "0";
+		document.getElementById("fpga_iob").value = "0";
+	}
+	if(selection=='na'){
+		document.getElementById("fpga_logic_gates").style.backgroundColor="#c3c1c1";
+		document.getElementById("fpga_slice_regs").style.backgroundColor="#c3c1c1";
+		document.getElementById("fpga_xadc").style.backgroundColor="#c3c1c1";
+		document.getElementById("fpga_iob").style.backgroundColor="#c3c1c1";
+	}else{
+		document.getElementById("fpga_logic_gates").style.backgroundColor="white";
+		document.getElementById("fpga_slice_regs").style.backgroundColor="white";
+		document.getElementById("fpga_xadc").style.backgroundColor="white";
+		document.getElementById("fpga_iob").style.backgroundColor="white";
+	}
+}
+
+function update_cpu_details(selection) {
+	if(selection=="Intel_i3"){
+		document.getElementById("cpu_cores").value = "2";
+	}else if(selection=="Intel_i5" || selection=="Intel_i7"){
+		document.getElementById("cpu_cores").value = "4";
+	}else if(selection=="Intel_i9"){
+		document.getElementById("cpu_cores").value = "6";
+	}else{
+		document.getElementById("cpu_cores").value = "1";
+	}
+}
+
+function update_gpu_details_fields(cores,mem,bd) {
+	document.getElementById("gpu_cores").value = cores;
+	document.getElementById("gpu_mem").value = mem;//GB GDDR5
+	document.getElementById("gpu_mem_bd").value = bd; //GB/s
+}
+
+function update_gpu_details(selection) {
+	if(selection=='na'){
+		document.getElementById("gpu_cores").style.backgroundColor="#c3c1c1";
+		document.getElementById("gpu_mem").style.backgroundColor="#c3c1c1";
+		document.getElementById("gpu_mem_bd").style.backgroundColor="#c3c1c1";
+	}else{
+		document.getElementById("gpu_cores").style.backgroundColor="white";
+		document.getElementById("gpu_mem").style.backgroundColor="white";
+		document.getElementById("gpu_mem_bd").style.backgroundColor="white";
+	}
+	if(selection=="S2050"){
+		update_gpu_details_fields("1792","3","148.4");
+	}else if(selection=="C2050"){
+		update_gpu_details_fields("448","3","144");
+	}else if(selection=="C2070"){
+		update_gpu_details_fields("448","6","144");
+	}else if(selection=="C2075"){
+		update_gpu_details_fields("448","6","144");
+	}else if(selection=="M2050"){
+		update_gpu_details_fields("448","3","148.4");
+	}else if(selection=="M2070"){
+		update_gpu_details_fields("448","6","150.3");
+	}else if(selection=="M2090"){
+		update_gpu_details_fields("512","6","177.6");
+	}else if(selection=="k10"){
+		update_gpu_details_fields("3072","8","320");
+	}else if(selection=="K20"){
+		update_gpu_details_fields("2496","5","208");
+	}else if(selection=="K40"){
+		update_gpu_details_fields("2880","23","288");
+	}else if(selection=="K80"){
+		update_gpu_details_fields("4992","24","480");
+	//<optgroup label="NVIDIA Quadro Line:">	
+	}else if(selection=="400"){
+		update_gpu_details_fields("48","0.5","12.3");
+	}else if(selection=="2000"){
+		update_gpu_details_fields("192","1","41.6");
+	}else if(selection=="4000"){
+		update_gpu_details_fields("256","2","89.6");
+	}else if(selection=="5000"){
+		update_gpu_details_fields("352","2.5","120");
+	}else if(selection=="6000"){
+		update_gpu_details_fields("448","6","144");
+	}else if(selection=="K2000"){
+		update_gpu_details_fields("384","2","64");
+	}else if(selection=="K4000"){
+		update_gpu_details_fields("768","3","134");
+	}else if(selection=="K5000"){
+		update_gpu_details_fields("1536","4","173");
+	}else if(selection=="K6000"){
+		update_gpu_details_fields("2880","12","288");
+	}else{
+		update_gpu_details_fields("0","0","0");
+	}
+}			
+
+function setup_workstation(cpu_type, cpu_cores, ram_size_bytes,gpu_type,fpga_type){
+//cpu
+// 	document.getElementById("device").value = "";
+	document.getElementById("disabledno").checked = "no";
+	document.getElementById("mac").value ="00:00:00:00:00:00";
+	document.getElementById("mac").value="0.0.0.0";
+	document.getElementById("cpu_type").value=cpu_type;
+	document.getElementById("cpu_cores").value=cpu_cores;
+	document.getElementById("ram_size_bytes").value=ram_size_bytes;
+	
+	document.getElementById("gpu_type").value=gpu_type; 
+	document.getElementById("fpga_type").value=fpga_type;	
+	update_gpu_details(gpu_type);
+	update_fpga_details(fpga_type);
+}
+
+function submitform(e, frm) {
+	if (document.getElementById('device').value == '') {
+		alert('Missing field device !!');
+	} else {
+
+mquery={
+	"device" :  document.getElementById('device').value,
+	"disabled" : document.getElementById('disabledyes').value,
+	"mac" : document.getElementById('mac').value,
+	"ip" : document.getElementById('ip').value,
+	"cpu_type" : document.getElementById('cpu_type').value,
+	"cpu_cores" : document.getElementById('cpu_cores').value,
+	"ram_size_bytes" : document.getElementById('ram_size_bytes').value,
+//	GPU:
+	"gpu_type" : document.getElementById('gpu_type').value,
+	"gpu_memory_bandwidth" : document.getElementById('gpu_mem_bd').value,
+	"gpu_memory_size" : document.getElementById('gpu_mem').value,
+	"gpu_cores" : document.getElementById('gpu_cores').value,
+// FPGA:
+	"fpga_type" : document.getElementById('fpga_type').value,
+	"fpga_logic_gates" : document.getElementById('fpga_logic_gates').value,
+	"fpga_slice_regs" : document.getElementById('fpga_slice_regs').value,
+	"fpga_xadc" : document.getElementById('fpga_xadc').value,
+	"fpga_iob" : document.getElementById('fpga_iob').value 
+};
+// console.log(JSON.stringify(mquery,null,2));
+		var xhr = new XMLHttpRequest();
+		xhr.open('POST', 'myform_device_update', true);
+		xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+		xhr.onreadystatechange = function () {
+			if (xhr.readyState == 4) {
+				var r = "";
+				if (xhr.status == 200 || xhr.status == 0) {
+					r = "Success!<br />";
+				} else {
+					r = "Error " + xhr.status + " occurred uploading form.<br />";
+				}
+				document.getElementById("demoreplaceb").innerHTML = r ;
+				document.getElementById("debug_phantom").style.display = "block";
+				document.getElementById("phantom_form").style.display = "none";
+			}
+		};
+		xhr.send(JSON.stringify(mquery));	
+	}
+}
+</script>
+</head>
+
+<body onload="start_page_new()">
+	<div id="menu_phantom"></div>
+
+	<div id="menu_login" style="display:none"></div>
+
+	<div id="phantom_operation">
+		<h1><b>Register or Update a single device</b> </h1>
+
+		<div id="phantom_form" style="display:block">
+			<form name="frm" id="frm" autocomplete="on">
+			<hr>
+
+			<h2><b> Available default configuration for systems: </b></h2>
+			&emsp;&emsp;<button type="button" onclick="setup_workstation('Intel_i7','4',4*1024*1024*1024,'na','na')">Laptop i7</button>
+			<button type="button" onclick="setup_workstation('ARM32','2',1*1024*1024*1024,'na','zc706')">Xilinx XC706</button><!--ARM Cortex-A9-->
+			<button type="button" onclick="setup_workstation('Intel_i7','4',8*1024*1024*1024,'K40','na')">Server with TeslaK40</button>
+			<button type="button" onclick="setup_workstation('ARM64','4',1*1024*1024*1024,'na','na')">Raspberry Pi3</button> 
+			<button type="button" onclick="setup_workstation('ARM64','8',2*1024*1024*1024,'na','na')">Odriod Xu4</button><!-- LPDDR3 -->
+
+			<h2><b> Online formular: </b></h2>
+
+			<form method="post" action="myform_device_update">
+			{<br>
+					&emsp;"device" : <input type="text" id="device" name="device" value="node01">,<br>
+					&emsp;"disabled" : <input type="radio" id="disabledyes" name="disabled" value="yes"> yes <input type="radio" id="disabledno" name="disabled" value="no" checked> no,<br>
+					&emsp;"mac" : <input type="text" id="mac" name="mac" value="00:00:00:00:00:00"><br>
+					&emsp;"ip" : <input type="text" id="ip" name="ip" value="0.0.0.0">,<br>
+					&emsp;"cpu_type" :
+						<select id="cpu_type" name="cpu_type" id="cpu_type" onchange="update_cpu_details(this.value)">
+							<option value="Intel_i3" selected>Intel_i3</option>
+							<option value="Intel_i5">Intel_i5</option>
+							<option value="Intel_i7">Intel_i7</option>
+							<option value="Intel_i9">Intel_i9</option>
+							<option value="Intel_x86-32">Intel_x86-32</option><!-- Intel Galileo -->
+							<option value="ARM32">ARM32</option><!-- Beagle-Bone ARM Cortex-A8 1GHz 32 bits -->
+							<option value="ARM64">ARM64</option><!-- Raspberry pi3 (4xARMv8-A53 64bits 1.2GHz) + Odriod (4x ARMv7-A15 2GHz + 4x ARMv7-A7 1.5GHz)-->
+						</select>,<br>
+					&emsp;"cpu_cores" : <input type="text" id="cpu_cores" name="cpu_cores" value="4">,<br>
+					&emsp;"ram_size_bytes" : <input type="text" id="ram_size_bytes" name="ram_size_bytes" value="1073741824"> (bytes),<br>
+			<!-- 		Reference values (not required for monitoring):<br> -->
+			<!-- 		&emsp;"cpu_max_frequency" : <input type="text" name="cpu_max_frequency" id="cpu_max_frequency" value="0"> (GB/s),<br> -->
+					<br>
+					<hr width="50%" align="left">
+					&emsp;"gpu_type" :
+						<select id="gpu_type" name="gpu_type" onchange="update_gpu_details(this.value)">
+							<optgroup label="Not Available:">
+							<option selected value="na">na</option>
+							<optgroup label="NVIDIA Tesla Line:">
+			<!-- 				<option value="tesla03">X2070, X2090</option>-->
+								<option value="S2050"> S2050:1792 cores  3GB GDDR5 bandwidth 148.4</option>
+								<option value="C2050"> C2050: 448 cores  3GB GDDR5 bandwidth 144</option>
+								<option value="C2070"> C2070: 448 cores  6GB GDDR5 bandwidth 144</option>
+								<option value="C2075"> C2075: 448 cores  6GB GDDR5 bandwidth 144</option>
+								<option value="M2050"> M2050: 448 cores  3GB GDDR5 bandwidth 148.4</option>
+								<option value="M2070"> M2070: 448 cores  6GB GDDR5 bandwidth 150.3</option>
+								<option value="M2090"> M2090: 512 cores  6GB GDDR5 bandwidth 177.6</option>
+								<option value=  "k10"> K10:  3072 cores  8GB GDDR5 bandwidth 320</option>
+								<option value=  "K20"> K20:  2496 cores  5GB GDDR5 bandwidth 208</option>
+								<option value=  "K40"> K40:  2880 cores 12GB GDDR5 bandwidth 288</option>
+								<option value=  "K80"> K80:  4992 cores 24GB GDDR5 bandwidth 480</option>
+							<optgroup label="NVIDIA Quadro Line:">
+								<option value=  "400">  400:  48 cores 512MB GDDR5  bandwidth  12.3</option>
+								<option value= "2000"> 2000: 192 cores  1GB GDDR5   bandwidth  41.6</option>
+								<option value= "4000"> 4000: 256 cores  2GB GDDR5   bandwidth  89.6</option>
+								<option value= "5000"> 5000: 352 cores  2.5GB GDDR5 bandwidth 120</option>
+								<option value= "6000"> 6000: 448 cores  6GB GDDR5   bandwidth 144</option>
+								<option value="K2000">K2000: 384 cores  2GB GDDR5   bandwidth  64</option>
+								<option value="K4000">K4000: 768 cores  3GB GDDR5   bandwidth 134</option>
+								<option value="K5000">K5000:1536 cores  4GB GDDR5   bandwidth 173</option>
+								<option value="K6000">K6000:2880 cores 12GB GDDR5   bandwidth 288</option>
+			<!-- 			<optgroup label="NVIDIA GRID Line:">	 -->
+			<!-- 				<option value="grid01">K1, K2, K340, K520</option>-->
+							<optgroup label="Limited Supported Tesla cards:">
+								<option value="teslaz01">previous Tesla card</option>
+							<optgroup label="Limited Supported Quadro cards:">
+								<option value="teslaz01">previous Quadro card</option>
+							<optgroup label="Limited Supported GeForce cards:">
+								<option value="GeForce">Any GeForce card</option>
+						</select>*,<br>
+						Addtional reference values (not required for monitoring), leave as "-1" if unknown:<br>
+						&emsp;"gpu_memory_bandwidth" : <input type="text" name="gpu_mem_bd" id="gpu_mem_bd" value="0"> (GB/s),<br>
+						&emsp;"gpu_memory_size": <input type="text" id="gpu_mem" name="gpu_mem" value="0"> (GB),<br>
+						&emsp;"gpu_cores": <input type="text" id="gpu_cores" name="gpu_cores" value="0">,<br>
+					<br>
+					<hr width="50%" align="left">
+					&emsp;"fpga_type" :
+						<select id="fpga_type" name="fpga_type" id="fpga_type" onchange="update_fpga_details(this.value)">
+							<optgroup label="Not Available:">
+							<option selected value="na">na</option>
+							<optgroup label="Zynq series:">
+								<option value="zc706">zc706</option>
+						</select>,<br>
+						Addtional reference values (not required for monitoring), leave as "-1" if unknown:<br>
+						&emsp;"fpga_logic_gates": <input type="text" id="fpga_logic_gates" name="fpga_logic_gates" value="0" STYLE="background-color:white;">,<br>
+						&emsp;"fpga_slice_regs": <input type="text" id="fpga_slice_regs" name="fpga_slice_regs" value="0">,<br>
+						&emsp;"fpga_xadc": <input type="text" id="fpga_xadc" name="fpga_xadc" value="0">,<br>
+						&emsp;"fpga_iob": <input type="text" id="fpga_iob" name="fpga_iob" value="0"><br>
+					<br>
+				}<br>
+				
+			*: <a href="https://docs.nvidia.com/deploy/nvml-api/nvml-api-reference.html#nvml-api-reference"> updated list at Nvidia.com of the supported cards.</a><br>
+			<!-- <input type="submit" value="Submit"> -->
+			<!-- <input type="submit" value="Submit" onclick="submitform(event, this)"> -->
+			</form>
+			<center>
+				<button onclick="submitform(event, this)">Submit </button>
+			</center>
+		</div>
+	</div>
+
+	<div id="debug_phantom" style="display:none">
+		<hr><p id="demoreplaceb"></p>
+	</div>
+
+	<div id="foot_phantom"></div>
+
+	<script> exec_load_header_footer(); </script>
+</body>
+</html>
