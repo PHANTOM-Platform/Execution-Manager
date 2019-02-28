@@ -1009,13 +1009,16 @@ function register_exec(req, res,new_exec){
 	jsontext =update_app_length_on_json(jsontext, appname); //this adds the field app.length
 	var exec_id = get_value_json(jsontext,"execution_id"); //(1) parsing the JSON
 	exec_id=exec_id.value;
+	var req_status = get_value_json(jsontext,"req_status");
+	req_status =req_status.value;
 	jsontext =update_execution_id_length_on_json(jsontext, exec_id);
 	var result_count = ExecsModule.query_count_exec_exec_id(es_servername + ":" + es_port,SERVERDB, exec_id);
 	result_count.then((resultResolve) => {
 		if(resultResolve==0){//new entry (2) we resister new entry
 			var req_date = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
 			jsontext = update_request_time(jsontext, req_date);
-			jsontext = update_exec_status(jsontext, "pending");
+			if(req_status==undefined) req_status= "pending";
+			jsontext = update_exec_status(jsontext,req_status);
 			var result = ExecsModule.register_exec_json(es_servername + ":" + es_port,SERVERDB, jsontext);
 			result.then((resultResolve) => {
 				resultlog = LogsModule.register_log(es_servername + ":" + es_port,SERVERDB, 200,req.connection.remoteAddress,"Add task Succeed",currentdate,res.user);
@@ -1043,7 +1046,8 @@ function register_exec(req, res,new_exec){
 				log: 'error'
 			});
 			var algo= new Promise((resolve,reject) => {
-				jsontext = update_exec_status(jsontext, "completed");
+				if(req_status==undefined) req_status= "completed";
+				jsontext = update_exec_status(jsontext, req_status);
 				var mergejson = JSON.parse(jsontext);
 				clientb.update({//index replaces the json in the DB with the new one
 					index: SERVERDB,
@@ -1065,7 +1069,7 @@ function register_exec(req, res,new_exec){
 			});
 			algo.then((resultResolve) => {
 // 				console.log("send_exec_update_to_suscribers("+exec_id+"type: completed)");
-				send_exec_update_to_suscribers(exec_id,"completed", jsontext);
+				send_exec_update_to_suscribers(exec_id,req_status, jsontext);
 				res.writeHead(200, {"Content-Type": contentType_text_plain});
 				res.end(exec_id, 'utf-8');
 				return;
