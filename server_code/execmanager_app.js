@@ -702,6 +702,12 @@ app.get('/PleaseEnableJavascript.html', function(req, res) {
 	var filePath = '../web-execmanager/PleaseEnableJavascript.html';
 	retrieve_file(filePath,res);
 });
+
+app.get('/log_list.html', function(req, res) {
+	var filePath = '../web-execmanager/log_list.html';
+	retrieve_file(filePath,res);
+});
+
 //********************************************************** 
 app.get('/executionmanager.html', function(req, res) {
 	var filePath = '../web-execmanager/executionmanager.html';
@@ -1557,7 +1563,9 @@ app.get('/query_exec', function(req, res) {
 	var currentdate	= dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
 	var pretty 		= find_param(req.body.pretty, req.query.pretty);
 	var exec_id	= find_param(req.body.exec_id, req.query.exec_id);
-	exec_id= validate_parameter(exec_id,"app",currentdate,res.user, req.connection.remoteAddress);//generates the error log if not defined
+	exec_id= validate_parameter(exec_id,"exec_id",currentdate,res.user, req.connection.remoteAddress);//generates the error log if not defined
+	if(exec_id==undefined)
+		exec_id= validate_parameter(exec_id,"app",currentdate,res.user, req.connection.remoteAddress);//generates the error log if not defined
 	if(exec_id==undefined) exec_id="";
 	if (exec_id.length == 0){
 		res.writeHead(400, { 'Content-Type': contentType_text_plain });
