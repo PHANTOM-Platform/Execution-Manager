@@ -17,7 +17,12 @@
 	<script src="phantom.js"></script>
 </head>
 
-<body onload="start_page_new()">
+<body onload="start_page_new()" id="body" ><!--class="light-mode"-->
+	<script>
+		var currentmode= localStorage.getItem('currentmode');
+		if(currentmode!=undefined)
+			body.className = currentmode;
+	</script>
 	<div id="menu_phantom"></div>
 	
 	<div id="menu_login" style="display:none"></div>
@@ -26,7 +31,7 @@
 	<h1><b>LIST OF LOGs</b></h1>
 
 	<h2><b> Online formular: Retrieve List of LOGs</b></h2>
-		<form 
+		<form
 		id='queryForm'
 		method='get'
 		name="myForm"
@@ -42,7 +47,7 @@
 		</div>
 	</form>
 	</div>
-	
+
 	<div id="debug_phantom">
 		<hr><p id="demoreplaceb"></p>
 	</div>
