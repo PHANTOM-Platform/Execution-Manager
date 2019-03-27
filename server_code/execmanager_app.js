@@ -1119,7 +1119,7 @@ function change_status_exec(req, res, newstatus){
 			var algo= new Promise((resolve,reject) => {
 				jsontext = JSON.parse(update_exec_status(JSON.stringify(jsontext), newstatus));
 				jsontext = JSON.parse(update_reject_reason(JSON.stringify(jsontext), reason));
-				console.log(" jsontext "+JSON.stringify(jsontext));
+// 				console.log(" jsontext "+JSON.stringify(jsontext));
 				clientb.update({//index replaces the json in the DB with the new one
 					index: SERVERDB,
 					type: 'executions_status',
@@ -1847,19 +1847,19 @@ app.get('/login', function(req, res) {
 			var mytoken= auth.emailLogin(email);
 			res.writeHead(200, {"Content-Type": contentType_text_plain});
 			res.end(mytoken);
-			resultlog = LogsModule.register_log(es_servername+":"+es_port,SERVERDB, 200, req.connection.remoteAddress, "New token Generated",currentdate,"");
+			resultlog = LogsModule.register_log(es_servername+":"+es_port,SERVERDB, 200, req.connection.remoteAddress, "New token Generated",currentdate,email);
 		}else{
 			res.writeHead(401, {"Content-Type": contentType_text_plain});
 			res.end("401 (Unauthorized) Autentication failed, incorrect user " +" or passwd " +"\n");
 // 			console.log("resultCount "+resultCount);
 			resultlog = LogsModule.register_log(es_servername+":"+es_port,SERVERDB, 401, req.connection.remoteAddress,
-				"401: Bad Request of Token, incorrect user or passwd "+email+"or passwd ",currentdate,"");
+				"401: Bad Request of Token, incorrect user \""+email+"\" or passwd or passwd ",currentdate,email);
 		}
 	},(resultReject)=> {
 		res.writeHead(400, {"Content-Type": contentType_text_plain});
 		res.end("\n400: Bad Request "+resultReject+"\n");
 		resultlog = LogsModule.register_log(es_servername+":"+es_port,SERVERDB, 400, req.connection.remoteAddress, 
-				"400: Bad Token Request "+resultReject,currentdate,"");
+				"400: Bad Token Request "+resultReject,currentdate,email);
 	});
 }); // login
 function originIsAllowed(origin) {
@@ -1897,7 +1897,7 @@ function send_exec_update_to_suscribers(exec_id, type, jsontext){
 	if(exec_id != undefined){
 	if(exec_id.length > 0){
 		//Now we find the suscribed users and we send copy
-		console.log("max_users :"+max_users);
+// 		console.log("max_users :"+max_users);
 		for (var u = 0; u < max_users; u++) {
 			var found_sucrip=false;
 			var i=0;
