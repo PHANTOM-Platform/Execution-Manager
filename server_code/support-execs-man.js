@@ -17,6 +17,164 @@
 
 const CommonModule 	= require('./support-common');
 
+function getType(p) {
+	if (Array.isArray(p)) return 'array';
+	else if (typeof p == 'string') return 'string';
+	else if (p != null && typeof p == 'object') return 'object';
+	else return 'other';
+}
+
+
+function pad(num, size) {
+    var s = num+"";
+    while (s.length < size) s = "0" + s;
+    return s;
+}
+
+
+function calculate_date( input) {
+	var current = input;
+	current = Math.floor(current /1000000);
+	var tempstr="";
+	var months=[31, 28, 31, 30, 31, 30, 31, 31, 30 ,31 ,30 ,31 ];
+	var exampledate_msec =Math.floor(current % 1000);
+	current= Math.floor(current /1000);
+	var exampledate_sec = Math.floor(current %60);
+	current =Math.floor(current / 60);
+	var exampledate_min = Math.floor(current % 60);
+	current = Math.floor(current /60);
+	var exampledate_hour = Math.floor(current %24);
+	current = Math.floor(current /24);
+	var exampledate_year=0;
+// 	var exampledate_name_day = current % 7;
+	if(current > 365+365+366){
+		exampledate_year=3;
+		current -= (365+365+366);
+	}
+	if(current > 1461){
+		exampledate_year+=(4*Math.floor(current / 1461));
+		current = Math.floor(current % 1461);
+	}
+	exampledate_year+=Math.floor(current / 365);
+	current = Math.floor(current % 365);
+	var leap_year;
+	if (exampledate_year %4==2){
+		leap_year=1;
+	}else{
+		leap_year=0;
+	}
+	if (leap_year==1) months[1]=29;
+	var exampledate_month=0;
+	while(current> months[exampledate_month]){
+		current -= months[exampledate_month];
+		exampledate_month++;
+	}
+	exampledate_year= 1970+ Math.floor(exampledate_year);
+	var exampledate_day= 1+ current;
+	exampledate_month=1+exampledate_month;
+	tempstr=exampledate_year+"-"+pad(exampledate_month,2)+"-"+pad(exampledate_day,2)+"T"+pad(exampledate_hour,2)+":"+pad(exampledate_min,2)+":"+pad(exampledate_sec,2)+"."+pad(exampledate_msec,2);
+	return tempstr;
+}
+
+
+function debugjson(jsonobj) {
+	var keys = Object.keys(jsonobj); 
+	var i=0;
+	while (i < keys.length) {
+		console.log("  #" +i+" LABEL " +Object.getOwnPropertyNames(jsonobj)[i] + " VALUE ");
+		var value=jsonobj[keys[i]];
+		if (getType(value) == "string" || getType(jsonobj[keys[i]]) == "other"){
+			console.log(value+"\n");
+		}else if (getType(value) == "array" ) {
+			//may something to do
+			console.log("ARRAY\n");
+		}else if (getType(value) == "object" ) {
+			var jsonobj_b = jsonobj[keys[i]];
+			var keys_b = Object.keys(jsonobj_b);
+			var i_b=0;
+			while (i_b < keys_b.length) {
+				var mylabel=Object.getOwnPropertyNames(jsonobj_b)[i_b];
+				var myvalue_b=jsonobj_b[keys_b[i_b]];  
+				if( mylabel !=null){
+					if (getType(myvalue_b) == "string" || getType(myvalue_b) == "other" ){
+// 						if( mylabel.localeCompare(label)==0 ){
+							console.log("\t\t"+mylabel+" : "+myvalue_b+"");
+// 						}
+					}else if (getType(myvalue_b) == "array" ) {
+						//may something to do
+						console.log("\t\t"+mylabel+" : "+"ARRAY");
+						var jsonobj_f =  jsonobj_b[keys_b[i_b]];  
+						var keys_f = Object.keys(jsonobj_f);
+						var i_f=0;
+						while (i_f < keys_f.length) {
+							var mylabel_f=Object.getOwnPropertyNames(jsonobj_f)[i_f];
+							var myvalue_f=jsonobj_f[keys_f[i_f]];
+// 								if( mylabel !=null){
+								if (getType(myvalue_f) == "string" || getType(myvalue_f) == "other" ){
+			// 						if( mylabel.localeCompare(label)==0 ){
+										console.log("\t\t\t"+mylabel_f+" : "+myvalue_f+"");
+			// 						}
+								}else if (getType(myvalue_f) == "array" ) {
+									//may something to do
+									console.log("\t\t\t"+mylabel_f+" : "+"ARRAY3");
+								}else if (getType(myvalue_f) == "object" ) {
+									console.log("\t\t\t"+mylabel_f+" : "+"object3");
+									var jsonobj_z =  jsonobj_f[keys_f[i_f]];  
+									var keys_z = Object.keys(jsonobj_z);
+									var i_z=0;
+									while (i_z < keys_z.length) {
+										var mylabel_z=Object.getOwnPropertyNames(jsonobj_z)[i_z];
+										var myvalue_z=jsonobj_z[keys_z[i_z]];
+// 										if( mylabel !=null){
+											if (getType(myvalue_z) == "string" || getType(myvalue_z) == "other" ){
+						// 						if( mylabel.localeCompare(label)==0 ){
+													console.log("\t\t\t\t"+mylabel_z+" : "+myvalue_z+"");
+						// 						}
+											}else if (getType(myvalue_z) == "array" ) {
+												//may something to do
+												console.log("\t\t\t\t"+mylabel_z+" : "+"ARRAY4");
+											}else if (getType(myvalue_z) == "object" ) {
+												console.log("\t\t\t\t"+mylabel_z+" : "+"object4");
+											};
+// 										};
+										i_z++;
+									};
+								};
+// 								};
+							i_f++;
+						};
+					}else if (getType(myvalue_b) == "object" ) {
+						console.log("\t\t"+mylabel+" : ");
+						var jsonobj_c =  jsonobj_b[keys_b[i_b]];
+						var keys_c = Object.keys(jsonobj_c);
+						var i_c=0;
+						while (i_c < keys_c.length) {
+							var mylabel_c=Object.getOwnPropertyNames(jsonobj_c)[i_c];
+							var myvalue_c=jsonobj_c[keys_c[i_c]];
+							if( mylabel_c !=null){
+								if (getType(myvalue_c) == "string" || getType(myvalue_c) == "other" ){
+			// 						if( mylabel.localeCompare(label)==0 ){
+										console.log("\t\t\t"+mylabel_c+" : "+myvalue_c+"");
+			// 						}
+								}else if (getType(myvalue_c) == "array" ) {
+									//may something to do
+									console.log("\t\t\t"+mylabel_c+" : "+"ARRAY2");
+								}else if (getType(myvalue_c) == "object" ) {
+									console.log("\t\t\t"+mylabel_c+" : "+"object2");
+								};
+							};
+							i_c++;
+						};
+					};
+				};
+				i_b++;
+			};
+		}
+		i++;
+	}
+}
+
+
 module.exports = {
 compose_query: function(app){
 	var mquery=undefined;
@@ -237,6 +395,249 @@ get_component_timing: function(es_server, appid, taskid, experimentid){
 		});
 	});
 }, //end get_component_timing
+//****************************************************
+//This function is used to confirm that an user exists or not in the DataBase.
+
+get_all_stats: function(es_server, exec_id){ //"AWmwAaLAZpi43u_W9jze"
+	const my_index = "exec_manager_db";
+	const my_type = "executions_status";
+	return new Promise( (resolve,reject) => {
+		var elasticsearch = require('elasticsearch');
+		var client = new elasticsearch.Client({
+			host: es_server,
+			log: 'error'
+		});
+
+		client.search({
+			index: my_index,
+			type: my_type,
+			body: { "query":{"bool":{"must": [
+					{"match_phrase":{"execution_id" : exec_id }} 
+					]}},
+					"size":30
+				}
+		}, function(error, response) {
+			if(error) {
+				reject ("error"+error+"\n for index "+my_index);
+			}
+			if(response !== undefined) {
+				var total=response.hits.total;
+
+	var jsonobj=response.hits.hits.map(hit => hit._source);
+	var super_new_stats={};
+	var keys = Object.keys(jsonobj);
+	var max_end_time;
+	var min_start_time;
+	
+	var tempstr="";
+	var i=0;
+	while (i < keys.length) {
+		var value=jsonobj[keys[i]];
+		if (getType(value) == "object" ) {
+			var jsonobj_b = jsonobj[keys[i]];
+			var keys_b = Object.keys(jsonobj_b);
+			var i_b=0;
+			while (i_b < keys_b.length) {
+				var mylabel=Object.getOwnPropertyNames(jsonobj_b)[i_b];
+				var myvalue_b=jsonobj_b[keys_b[i_b]];  
+				if( mylabel !=null){
+					if (getType(myvalue_b) == "string" || getType(myvalue_b) == "other" ){
+// 						console.log("\t\t"+mylabel+" : "+myvalue_b+"");
+						
+						if((mylabel=="start_timestamp")||(mylabel=="start_timestamp_length")||(mylabel=="end_timestamp")
+							||(mylabel=="end_timestamp_length") ||(mylabel=="total_time_ns") ||(mylabel=="total_time_length")
+							||(mylabel=="start_timestamp_ns_length") ||(mylabel=="end_timestamp_ns_length")
+						){
+							// do nothing, we will generate new ones later, based on the largest interval
+						}else if((mylabel=="start_timestamp_ns")){
+							if(i==0){
+								min_start_time=parseInt(myvalue_b);
+							}else if( min_start_time <parseInt(myvalue_b)){
+								min_start_time=parseInt(myvalue_b);
+							}
+							
+							tempstr=calculate_date((min_start_time));
+							super_new_stats['start_timestamp']=tempstr;
+							super_new_stats[mylabel]=min_start_time;
+							
+							if(max_end_time!=undefined)
+							if(max_end_time>min_start_time)
+							super_new_stats['total_time_ns']=max_end_time-min_start_time;
+							
+						}else if ((mylabel=="end_timestamp_ns") ){
+
+							if(i==0){
+								max_end_time=parseInt(myvalue_b);
+							}else if( max_end_time >parseInt(myvalue_b)){
+								max_end_time=parseInt(myvalue_b);
+							}
+							tempstr=calculate_date((max_end_time));
+							super_new_stats['end_timestamp']=tempstr;
+							super_new_stats[mylabel]=max_end_time;
+							if(min_start_time!=undefined)
+							if(max_end_time>min_start_time)
+							super_new_stats['total_time_ns']=max_end_time-min_start_time;
+							
+						}else if((mylabel=="energy")||(mylabel=="cpu_power_consumption")||(mylabel=="io_power_consumption")
+							||(mylabel=="mem_power_consumption")||(mylabel=="net_power_consumption")
+						){
+							if(super_new_stats[mylabel]!=undefined){
+								super_new_stats[mylabel]=parseFloat(super_new_stats[mylabel])+parseFloat(myvalue_b);
+							}else{
+								super_new_stats[mylabel]=myvalue_b;
+							}
+							
+// 							tempstr=calculate_date((temp));
+// 							super_new_stats['end_timestamp']=tempstr;
+// 							super_new_stats[mylabel]=temp;
+							
+							
+							
+						}else if((mylabel!="energy_length")&&(mylabel!="cpu_power_consumption_length")&&(mylabel!="io_power_consumption_length")
+							&&(mylabel!="mem_power_consumption_length")&&(mylabel!="net_power_consumption")
+						){
+							super_new_stats[mylabel]=myvalue_b;
+						}
+							
+// 					}else if (getType(myvalue_b) == "array" ) {
+// 						console.log("\t\t"+mylabel+" : "+"ARRAY1");
+// 						var jsonobj_f =  jsonobj_b[keys_b[i_b]];  
+// 						var keys_f = Object.keys(jsonobj_f);
+// 						var i_f=0;
+// 						var component_stats=[];
+// 						while (i_f < keys_f.length) {
+// 							var mylabel_f=Object.getOwnPropertyNames(jsonobj_f)[i_f];
+// 							var myvalue_f=jsonobj_f[keys_f[i_f]];
+// 							if (getType(myvalue_f) == "string" || getType(myvalue_f) == "other" ){
+// 								console.log("\t\t\t"+mylabel_f+" : "+myvalue_f+"");
+// 							}else if (getType(myvalue_f) == "object" ) {
+// 								console.log("\t\t\t"+mylabel_f+" : "+"object3");
+// 								var component_stats={};
+// 								var jsonobj_z =  jsonobj_f[keys_f[i_f]];  
+// 								var keys_z = Object.keys(jsonobj_z);
+// 								var i_z=0;
+// 								while (i_z < keys_z.length) {
+// 									var mylabel_z=Object.getOwnPropertyNames(jsonobj_z)[i_z];
+// 									var myvalue_z=jsonobj_z[keys_z[i_z]];
+// 									if (getType(myvalue_z) == "string" || getType(myvalue_z) == "other" ){
+// 										console.log("\t\t\t\t"+mylabel_z+" : "+myvalue_z+"");
+// 										component_stats[mylabel_z]=  myvalue_z;
+// 									}else if (getType(myvalue_z) == "object" ) {
+// 										console.log("\t\t\t\t"+mylabel_z+" : "+"object4");
+// 										var new_object={};
+// 										var jsonobj_rs =  jsonobj_z[keys_z[i_z]];  
+// 										var keys_rs = Object.keys(jsonobj_rs);
+// 										var i_rs=0;
+// 										while (i_rs < keys_rs.length) {
+// 											var mylabel_rs=Object.getOwnPropertyNames(jsonobj_rs)[i_rs];
+// 											var myvalue_rs=jsonobj_rs[keys_rs[i_rs]];
+// 											if (getType(myvalue_rs) == "string" || getType(myvalue_rs) == "other" ){
+// 												console.log("\t\t\t\t\t"+mylabel_rs+" : "+myvalue_rs+"");
+// 												new_object[mylabel_rs]=myvalue_rs;
+// 											}else if (getType(myvalue_rs) == "array" ) {
+// 												console.log("\t\t\t\t\y"+mylabel_rs+" : "+"ARRAY5");
+// 											}else if (getType(myvalue_z) == "object" ) {
+// 												console.log("\t\t\t\t\t"+mylabel_z+" : "+"object5");
+// 											};
+// 											i_rs++;
+// 										};
+// 										component_stats[mylabel_z]= new_object;
+// 									};
+// 									i_z++;
+// 								};
+// 								super_new_stats['component_stats'].push( component_stats);
+// 							};
+// 							i_f++;
+// 						};
+					};
+				};
+				i_b++;
+			};
+		}
+		i++;
+	}
+//divided in two parts because we wish the component_stats appear at the end of the json
+	super_new_stats['component_stats']=[];
+	var i=0;
+	while (i < keys.length) {
+		var value=jsonobj[keys[i]];
+		if (getType(value) == "object") {
+			var jsonobj_b = jsonobj[keys[i]];
+			var keys_b = Object.keys(jsonobj_b);
+			var i_b=0;
+			while (i_b < keys_b.length) {
+				var mylabel=Object.getOwnPropertyNames(jsonobj_b)[i_b];
+				var myvalue_b=jsonobj_b[keys_b[i_b]];  
+				if( mylabel !=null){
+					if (getType(myvalue_b) == "string" || getType(myvalue_b) == "other" ){
+// 						console.log("\t\t"+mylabel+" : "+myvalue_b+"");
+// 						super_new_stats[mylabel]=myvalue_b;
+					}else if (getType(myvalue_b) == "array" ) {
+// 						console.log("\t\t"+mylabel+" : "+"ARRAY1");
+						var jsonobj_f =  jsonobj_b[keys_b[i_b]];  
+						var keys_f = Object.keys(jsonobj_f);
+						var i_f=0;
+						var component_stats=[];
+						while (i_f < keys_f.length) {
+							var mylabel_f=Object.getOwnPropertyNames(jsonobj_f)[i_f];
+							var myvalue_f=jsonobj_f[keys_f[i_f]];
+							if (getType(myvalue_f) == "string" || getType(myvalue_f) == "other" ){
+// 								console.log("\t\t\t"+mylabel_f+" : "+myvalue_f+"");
+							}else if (getType(myvalue_f) == "object" ) {
+// 								console.log("\t\t\t"+mylabel_f+" : "+"object3");
+								var component_stats={};
+								var jsonobj_z =  jsonobj_f[keys_f[i_f]];  
+								var keys_z = Object.keys(jsonobj_z);
+								var i_z=0;
+								while (i_z < keys_z.length) {
+									var mylabel_z=Object.getOwnPropertyNames(jsonobj_z)[i_z];
+									var myvalue_z=jsonobj_z[keys_z[i_z]];
+									if (getType(myvalue_z) == "string" || getType(myvalue_z) == "other" ){
+// 										console.log("\t\t\t\t"+mylabel_z+" : "+myvalue_z+"");
+										component_stats[mylabel_z]=  myvalue_z;
+									}else if (getType(myvalue_z) == "object" ) {
+// 										console.log("\t\t\t\t"+mylabel_z+" : "+"object4");
+										var new_object={};
+										var jsonobj_rs =  jsonobj_z[keys_z[i_z]];  
+										var keys_rs = Object.keys(jsonobj_rs);
+										var i_rs=0;
+										while (i_rs < keys_rs.length) {
+											var mylabel_rs=Object.getOwnPropertyNames(jsonobj_rs)[i_rs];
+											var myvalue_rs=jsonobj_rs[keys_rs[i_rs]];
+											if (getType(myvalue_rs) == "string" || getType(myvalue_rs) == "other" ){
+// 												console.log("\t\t\t\t\t"+mylabel_rs+" : "+myvalue_rs+"");
+												new_object[mylabel_rs]=myvalue_rs;
+// 											}else if (getType(myvalue_rs) == "array" ) {
+// 												console.log("\t\t\t\t\y"+mylabel_rs+" : "+"ARRAY5");
+// 											}else if (getType(myvalue_z) == "object" ) {
+// 												console.log("\t\t\t\t\t"+mylabel_z+" : "+"object5");
+											};
+											i_rs++;
+										};
+										component_stats[mylabel_z]= new_object;
+									};
+									i_z++;
+								};
+								super_new_stats['component_stats'].push( component_stats);
+							};
+							i_f++;
+						};
+					};
+				};
+				i_b++;
+			};
+		}
+		i++;
+	}
+
+// 				resolve(JSON.stringify(response.hits.hits, null, 4));
+				resolve(JSON.stringify(super_new_stats, null, 4));
+			}else{
+				resolve ("unexpected error, for index "+my_index);//size
+			}
+		});
+	});
+}, //end get_all_stats
 //****************************************************
 //This function is used to confirm that an user exists or not in the DataBase.
 get_exp_stats: function(es_server, appid, taskid, experimentid){

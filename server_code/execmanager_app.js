@@ -851,7 +851,11 @@ app.get('/_flush', function(req, res) {
 	});
 });
 //**********************************************************
-function register_new_exec(req, res,new_exec){
+// we register the JSON into executions_received_data
+// then we merge that data into executions_status
+// if the number of documents in executions_received_data is the total then we send the notification-JSON to subscribers
+
+function register_new_exec(req, res, new_exec){
 	"use strict";
 	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
 	var message_bad_request = "UPLOAD Bad Request missing ";
@@ -989,7 +993,7 @@ function register_new_exec(req, res,new_exec){
 // 	});
 }//register_new_exec
 //**********************************************************
-function register_exec(req, res,new_exec){
+function register_exec(req, res, new_exec){
 	"use strict";
 	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
 	var message_bad_request = "UPLOAD Bad Request missing ";
@@ -1024,7 +1028,7 @@ function register_exec(req, res,new_exec){
 			var req_date = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
 			jsontext = update_request_time(jsontext, req_date);
 			if(req_status==undefined) req_status= "pending";
-			jsontext = update_exec_status(jsontext,req_status);
+			jsontext = update_exec_status(jsontext, req_status);
 			var result = ExecsModule.register_exec_json(es_servername + ":" + es_port,SERVERDB, jsontext);
 			result.then((resultResolve) => {
 				resultlog = LogsModule.register_log(es_servername + ":" + es_port,SERVERDB, 200,req.connection.remoteAddress,"Add task Succeed",currentdate,res.user);
@@ -1200,11 +1204,38 @@ function request_exec_id(appname){
 	});
 }//request_exec_id
 //**********************************************************
+
+app.get('/get_combined_json', function(req, res) { //this is for the table executions_status, all the info is in a JSON file
+	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
+	var exec_id	= CommonModule.remove_quotation_marks(find_param(req.body.exec_id, req.query.exec_id));
+	if((exec_id==undefined)   ){
+		res.writeHead(400, { 'Content-Type': contentType_text_plain });
+		res.end("\n400: Bad Request, missing " + "parameter exec_id" + ".\n");
+		return;
+	}else if((exec_id.length==0)){
+		res.writeHead(400, { 'Content-Type': contentType_text_plain });
+		res.end("\n400: Bad Request, empty " + "parameter exec_id" + ".\n");
+		return;
+	}else{
+		var result_countagg = ExecsModule.get_all_stats(es_servername + ":" + es_port , exec_id);
+		result_countagg.then((resultCount) => {
+			res.writeHead(200, {"Content-Type": contentType_text_plain});
+			res.end(resultCount);
+			return;
+		},(resultReject)=> {
+			res.writeHead(400, {"Content-Type": contentType_text_plain});
+			res.end("ERROR on all stats\n", 'utf-8'); //error counting projects in the DB
+			return;
+		});
+	}
+});
+
+
 app.get('/get_user_defined_metrics', function(req, res) { //this is for the table executions_status, all the info is in a JSON file
 	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
  	var appid		= CommonModule.remove_quotation_marks(find_param(req.body.appid, req.query.appid));
 	var execfile	= CommonModule.remove_quotation_marks(find_param(req.body.execfile, req.query.execfile));//deprecated, now we use taskid
-	var taskid	= CommonModule.remove_quotation_marks(find_param(req.bodytaskid, req.query.taskid));
+	var taskid	= CommonModule.remove_quotation_marks(find_param(req.body.taskid, req.query.taskid));
 // 	var experimentid = CommonModule.remove_quotation_marks(find_param(req.body.expid, req.query.expid));
 	if((taskid==undefined) && (execfile != undefined))
 		taskid=execfile;
@@ -1241,7 +1272,7 @@ app.get('/get_component_timing', function(req, res) { //this is for the table ex
  	var appid		= CommonModule.remove_quotation_marks(find_param(req.body.appid, req.query.appid));
 	var execfile	= CommonModule.remove_quotation_marks(find_param(req.body.execfile, req.query.execfile));//deprecated, now we use taskid
 	var experimentid	= CommonModule.remove_quotation_marks(find_param(req.body.expid, req.query.expid));
-	var taskid	= CommonModule.remove_quotation_marks(find_param(req.bodytaskid, req.query.taskid));
+	var taskid	= CommonModule.remove_quotation_marks(find_param(req.body.taskid, req.query.taskid));
 	if((taskid==undefined) && (execfile != undefined))
 		taskid=execfile;
 	if(execfile!=undefined){
@@ -1276,7 +1307,7 @@ app.get('/get_experiments_stats', function(req, res) { //this is for the table e
  	var appid		= CommonModule.remove_quotation_marks(find_param(req.body.appid, req.query.appid));
 	var execfile	= CommonModule.remove_quotation_marks(find_param(req.body.execfile, req.query.execfile));//deprecated, now we use taskid
 	var experimentid	= CommonModule.remove_quotation_marks(find_param(req.body.expid, req.query.expid));
-	var taskid	= CommonModule.remove_quotation_marks(find_param(req.bodytaskid, req.query.taskid));
+	var taskid	= CommonModule.remove_quotation_marks(find_param(req.body.taskid, req.query.taskid));
 	if((taskid==undefined) && (execfile != undefined))
 		taskid=execfile;
 	if(execfile!=undefined){
@@ -1311,7 +1342,7 @@ app.get('/count_experiments_metrics', function(req, res) { //this is for the tab
  	var appid		= CommonModule.remove_quotation_marks(find_param(req.body.appid, req.query.appid));
 	var execfile	= CommonModule.remove_quotation_marks(find_param(req.body.execfile, req.query.execfile));//deprecated, now we use taskid
 	var experimentid	= CommonModule.remove_quotation_marks(find_param(req.body.execution, req.query.execution));
-	var taskid	= CommonModule.remove_quotation_marks(find_param(req.bodytaskid, req.query.taskid));
+	var taskid	= CommonModule.remove_quotation_marks(find_param(req.body.taskid, req.query.taskid));
 	if((taskid==undefined) && (execfile != undefined))
 		taskid=execfile;
 	if(execfile!=undefined){
@@ -1346,7 +1377,7 @@ app.get('/count_executions', function(req, res) { //this is for the table execut
 	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
  	var appid		= CommonModule.remove_quotation_marks(find_param(req.body.appid, req.query.appid));
 	var execfile	= CommonModule.remove_quotation_marks(find_param(req.body.execfile, req.query.execfile));//deprecated, now we use taskid
-	var taskid	= CommonModule.remove_quotation_marks(find_param(req.bodytaskid, req.query.taskid));
+	var taskid	= CommonModule.remove_quotation_marks(find_param(req.body.taskid, req.query.taskid));
 	if((taskid==undefined) && (execfile != undefined))
 		taskid=execfile;
 	if(execfile!=undefined){
@@ -1382,7 +1413,7 @@ app.get('/list_executions', function(req, res) { //this is for the table executi
  	var appid		= CommonModule.remove_quotation_marks(find_param(req.body.appid, req.query.appid));
 //	var appid ="demo";, taskid ="pthread-example";
 	var execfile	= CommonModule.remove_quotation_marks(find_param(req.body.execfile, req.query.execfile));//deprecated, now we use taskid
-	var taskid	= CommonModule.remove_quotation_marks(find_param(req.bodytaskid, req.query.taskid));
+	var taskid	= CommonModule.remove_quotation_marks(find_param(req.body.taskid, req.query.taskid));
 	if((taskid==undefined) && (execfile != undefined))
 		taskid=execfile;
 	if(execfile!=undefined){
@@ -1692,7 +1723,18 @@ app.get('/es_query_exec', function(req, res) {
 // app.post('/signup',ipfilter(ips, {mode: 'allow'}), function(req, res) {
 app.post('/signup', function(req, res) {
 	"use strict";
-	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l"); 
+	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
+	if( (req.body==undefined) && (req.query==undefined)){
+		res.writeHead(400, {"Content-Type": contentType_text_plain});
+		res.end("\n400: Missing parameters.\n");
+		return;
+	}
+	if(req.body==undefined) {
+		req.body={};
+	}
+	if(req.query==undefined){
+		req.query={};
+	}	
 	var name= find_param(req.body.userid, req.query.userid);
 	var email= find_param(req.body.email, req.query.email);
 	var pw=find_param(req.body.pw, req.query.pw);
@@ -1758,6 +1800,17 @@ app.post('/signup', function(req, res) {
 app.post('/update_user', function(req, res) {
 	"use strict";
 	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
+	if( (req.body==undefined) && (req.query==undefined)){
+		res.writeHead(400, {"Content-Type": contentType_text_plain});
+		res.end("\n400: Missing parameters.\n");
+		return;
+	}
+	if(req.body==undefined) {
+		req.body={};
+	}
+	if(req.query==undefined){
+		req.query={};
+	}
 	var name= find_param(req.body.userid, req.query.userid);
 	var email= find_param(req.body.email, req.query.email);
 	var pw=find_param(req.body.pw, req.query.pw);
@@ -1817,6 +1870,17 @@ app.get('/login', function(req, res) {
 	"use strict";
 	var resultlog;
 	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l"); 
+		if( (req.body==undefined) && (req.query==undefined)){
+		res.writeHead(400, {"Content-Type": contentType_text_plain});
+		res.end("\n400: Missing parameters.\n");
+		return;
+	}
+	if(req.body==undefined) {
+		req.body={};
+	}
+	if(req.query==undefined){
+		req.query={};
+	}
 	var email= find_param(req.body.email, req.query.email);
 	var pw=find_param(req.body.pw, req.query.pw);
 	if (pw == undefined){
