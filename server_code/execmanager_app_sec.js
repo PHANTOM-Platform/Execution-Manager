@@ -1036,7 +1036,16 @@ function register_exec(req, res, new_exec){
 // 				var exec_id = find_id(resultResolve.text);
 			// 	jsontext =update_execution_id_length_on_json(jsontext, exec_id); TODO !!! need update the already registered json
 // 				console.log("send_exec_update_to_suscribers("+exec_id+" type: pending )");
-				send_exec_update_to_suscribers(exec_id, "pending", jsontext);
+
+				var result_countagg = ExecsModule.get_all_stats(es_servername + ":" + es_port , exec_id);
+				result_countagg.then((result_combine) => {
+					var newjson= JSON.parse(result_combine);
+					if ( newjson.count_reports == newjson.num_of_processes){
+						
+						send_exec_update_to_suscribers(exec_id, "pending", result_combine);//jsontext
+					}
+				});
+
 				res.writeHead(resultResolve.code, {"Content-Type": contentType_text_plain});
 				res.end(exec_id, 'utf-8');
 			},(resultReject)=> {
@@ -1080,7 +1089,16 @@ function register_exec(req, res, new_exec){
 			});
 			algo.then((resultResolve) => {
 // 				console.log("send_exec_update_to_suscribers("+exec_id+"type: completed)");
-				send_exec_update_to_suscribers(exec_id,req_status, jsontext);
+
+				var result_countagg = ExecsModule.get_all_stats(es_servername + ":" + es_port , exec_id);
+				result_countagg.then((result_combine) => {
+					var newjson= JSON.parse(result_combine);
+					if ( newjson.count_reports == newjson.num_of_processes){
+						
+						send_exec_update_to_suscribers(exec_id, req_status, result_combine);//jsontext
+					}
+				});
+
 				res.writeHead(200, {"Content-Type": contentType_text_plain});
 				res.end(exec_id, 'utf-8');
 				return;
@@ -1219,9 +1237,13 @@ app.get('/get_combined_json', function(req, res) { //this is for the table execu
 		return;
 	}else{
 		var result_countagg = ExecsModule.get_all_stats(es_servername + ":" + es_port , exec_id);
-		result_countagg.then((resultCount) => {
+		result_countagg.then((result_combine) => {
+// 			var newjson= JSON.parse(result_combine);
+// 			console.log("newjson.count_reports "+ newjson.count_reports +" newjson.num_of_processes "+newjson.num_of_processes);
+			
 			res.writeHead(200, {"Content-Type": contentType_text_plain});
-			res.end(resultCount);
+			res.end(result_combine);
+// 			res.end("newjson.count_reports "+ newjson.count_reports +" newjson.num_of_processes "+newjson.num_of_processes);
 			return;
 		},(resultReject)=> {
 			res.writeHead(400, {"Content-Type": contentType_text_plain});

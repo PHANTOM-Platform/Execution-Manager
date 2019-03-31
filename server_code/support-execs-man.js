@@ -429,9 +429,12 @@ get_all_stats: function(es_server, exec_id){ //"AWmwAaLAZpi43u_W9jze"
 	var max_end_time;
 	var min_start_time;
 	
+	var count_reports=keys.length;// num_of_processes
+	
 	var tempstr="";
 	var i=0;
 	while (i < keys.length) {
+// 		console.log("  #" +i+" LABEL " +Object.getOwnPropertyNames(jsonobj)[i] + " VALUE ");
 		var value=jsonobj[keys[i]];
 		if (getType(value) == "object" ) {
 			var jsonobj_b = jsonobj[keys[i]];
@@ -443,7 +446,6 @@ get_all_stats: function(es_server, exec_id){ //"AWmwAaLAZpi43u_W9jze"
 				if( mylabel !=null){
 					if (getType(myvalue_b) == "string" || getType(myvalue_b) == "other" ){
 // 						console.log("\t\t"+mylabel+" : "+myvalue_b+"");
-						
 						if((mylabel=="start_timestamp")||(mylabel=="start_timestamp_length")||(mylabel=="end_timestamp")
 							||(mylabel=="end_timestamp_length") ||(mylabel=="total_time_ns") ||(mylabel=="total_time_length")
 							||(mylabel=="start_timestamp_ns_length") ||(mylabel=="end_timestamp_ns_length")
@@ -486,18 +488,14 @@ get_all_stats: function(es_server, exec_id){ //"AWmwAaLAZpi43u_W9jze"
 							}else{
 								super_new_stats[mylabel]=myvalue_b;
 							}
-							
-// 							tempstr=calculate_date((temp));
-// 							super_new_stats['end_timestamp']=tempstr;
-// 							super_new_stats[mylabel]=temp;
-							
-							
-							
 						}else if((mylabel!="energy_length")&&(mylabel!="cpu_power_consumption_length")&&(mylabel!="io_power_consumption_length")
 							&&(mylabel!="mem_power_consumption_length")&&(mylabel!="net_power_consumption")
 						){
 							super_new_stats[mylabel]=myvalue_b;
 						}
+							
+						super_new_stats['count_reports']=count_reports;
+							
 							
 // 					}else if (getType(myvalue_b) == "array" ) {
 // 						console.log("\t\t"+mylabel+" : "+"ARRAY1");
@@ -556,6 +554,9 @@ get_all_stats: function(es_server, exec_id){ //"AWmwAaLAZpi43u_W9jze"
 		}
 		i++;
 	}
+	
+	
+	
 //divided in two parts because we wish the component_stats appear at the end of the json
 	super_new_stats['component_stats']=[];
 	var i=0;
@@ -638,6 +639,7 @@ get_all_stats: function(es_server, exec_id){ //"AWmwAaLAZpi43u_W9jze"
 		});
 	});
 }, //end get_all_stats
+
 //****************************************************
 //This function is used to confirm that an user exists or not in the DataBase.
 get_exp_stats: function(es_server, appid, taskid, experimentid){
