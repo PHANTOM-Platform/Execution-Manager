@@ -1038,9 +1038,8 @@ function register_exec(req, res, new_exec){
 
 				var result_countagg = ExecsModule.get_all_stats(es_servername + ":" + es_port , exec_id);
 				result_countagg.then((result_combine) => {
-					var newjson= JSON.parse(result_combine);
-					if ( newjson.count_reports == newjson.num_of_processes){
-						
+					var newjson= JSON.parse("{ \"hits\" : { \"total\" : 1, \"hits\" : [ { \"_source\" : " +result_combine+ "} ] } }") ;
+					if ( newjson.count_reports >= newjson.num_of_processes){
 						send_exec_update_to_suscribers(exec_id, "pending", result_combine);//jsontext
 					}
 				});
@@ -1091,9 +1090,8 @@ function register_exec(req, res, new_exec){
 
 				var result_countagg = ExecsModule.get_all_stats(es_servername + ":" + es_port , exec_id);
 				result_countagg.then((result_combine) => {
-					var newjson= JSON.parse(result_combine);
-					if ( newjson.count_reports == newjson.num_of_processes){
-						
+					var newjson= JSON.parse("{ \"hits\" : { \"total\" : 1, \"hits\" : [ { \"_source\" : " +result_combine+ "} ] } }") ;
+					if ( newjson.count_reports >= newjson.num_of_processes){
 						send_exec_update_to_suscribers(exec_id, req_status, result_combine);//jsontext
 					}
 				});
