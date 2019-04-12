@@ -249,7 +249,7 @@ find_exec: function(es_server, my_index, app, pretty){
 				index: my_index,
 				type: my_type,
 				size: 10000,
-				body:{"query":{"match_all": {} }}
+				body:{"query":{"match_all": {} }, "sort": [{"req_date": {"order": "desc" }}]}
 			}, function(error, response) {
 				if(error){
 					reject("search error: "+error)
