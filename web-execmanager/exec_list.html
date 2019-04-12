@@ -37,7 +37,7 @@
 		name="myForm">
 		<!-- 	encType="multipart/form-data"> this is only for post requests-->
 		<div class="center">
-			APP name (optional): <input type="text" name="appname" id="appname" value=""> leave empty if not wish to filter by name<br>
+			PROJECT name (optional): <input type="text" name="appname" id="appname" value=""> leave empty if not wish to filter by name<br>
 			<input type="hidden" name="pretty" value="true">
 			<!-- upload button-->
 			<input type="submit" onclick="return list_execs(5,document.getElementById('appname').value)" value="Show EXEC-STATUS in Table" />			
@@ -53,6 +53,16 @@
 	</div>
 
 	<div id="foot_phantom"></div>
-<script> exec_load_header_footer(); </script>
+<script> exec_load_header_footer();
+	var currentmode= localStorage.getItem('currentmode');
+	if(currentmode!=undefined){
+		var c = document.getElementById("foot_phantom").querySelectorAll("a");
+		for (i in c) {
+			c[i].className = currentmode;
+		}
+		//update it at last
+		document.getElementById("foot_phantom").className = currentmode;
+	}
+</script>
 </body>
 </html>
