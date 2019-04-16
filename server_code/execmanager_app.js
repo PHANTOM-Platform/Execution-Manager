@@ -690,6 +690,12 @@ app.get('/phantom.js', function(req, res) {
 	retrieve_file(filePath,res);
 });
 
+
+app.get('/executionmanager.js', function(req, res) {
+	var filePath = '../web-execmanager/executionmanager.js';
+	retrieve_file(filePath,res);
+});
+
 app.get('/phantom.gif', function(req, res) {
 	var filePath = '../web-execmanager/phantom.gif';
 	retrieve_file(filePath,res);
