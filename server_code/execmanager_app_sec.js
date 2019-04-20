@@ -1043,9 +1043,6 @@ function register_exec(req, res, new_exec){
 			// 	jsontext =update_execution_id_length_on_json(jsontext, exec_id); TODO !!! need update the already registered json
 // 				console.log("send_exec_update_to_suscribers("+exec_id+" type: pending )");
 
-			 
-				
-				
 				var result_countagg = ExecsModule.get_all_stats(es_servername + ":" + es_port , exec_id);
 				result_countagg.then((result_combine) => {
 					var newjson_b= JSON.parse("{ \"hits\" : { \"total\" : 1, \"hits\" : [ { \"_source\" : " +result_combine+ "} ] } }") ;
@@ -1261,6 +1258,7 @@ app.get('/get_combined_json', function(req, res) { //this is for the table execu
 		});
 	}
 });
+
 
 app.get('/get_user_defined_metrics',middleware.ensureAuthenticated, function(req, res) { //this is for the table executions_status, all the info is in a JSON file
 	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
@@ -1617,18 +1615,20 @@ app.get('/get_log_list', function(req, res) {
 	});
 });
 
+
 //**********************************************************
 app.get('/get_exec_list', function(req, res) {
 	"use strict";
 	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
 	var message_bad_request = "UPLOAD Bad Request missing ";
 	var pretty		= find_param(req.body.pretty, req.query.pretty);
+	var mysorttype	= find_param(req.body.sorttype, req.query.sorttype);
 	var execname	= CommonModule.remove_quotation_marks(find_param(req.body.app, req.query.app));
 	if (execname==undefined) execname="";
-	var result_count = ExecsModule.query_count_exec_app_name(es_servername + ":" + es_port,SERVERDB, execname);
+	var result_count = ExecsModule.query_count_exec_app_name(es_servername + ":" + es_port, SERVERDB, execname);
 	result_count.then((resultResolve) => {
 		if(resultResolve!=0){//new entry (2) we resister new entry
-			var result_id = ExecsModule.find_exec(es_servername + ":" + es_port,SERVERDB, execname,pretty);
+			var result_id = ExecsModule.find_exec(es_servername + ":" + es_port, SERVERDB, execname, pretty, mysorttype);
 			result_id.then((result_json) => {
 				res.writeHead(200, {"Content-Type": contentType_text_plain});
 				res.end(result_json);

@@ -234,8 +234,34 @@ register_json: function(es_server, my_index, body, remoteAddress, my_type) {
 //****************************************************
 //This function is used to confirm that a app exists or not in the DataBase.
 //We first counted if existence is >0
-find_exec: function(es_server, my_index, app, pretty){
+find_exec: function(es_server, my_index, app, pretty, mysorttype){
 	const my_type = 'executions_status';
+	var filter = [ { "req_date": { "order": "desc" }}, { "project": { "order": "asc" }},{ "req_status": { "order": "asc" }} ];
+if (mysorttype!=undefined){
+	if (mysorttype== "801"){
+		filter = [ {"execution_id":{ "order":"asc"}}, { "req_date": { "order": "desc" }} ];
+	} else if (mysorttype== "802"){
+		filter = [ {"req_status":{ "order":"asc"}}, { "req_date": { "order": "desc" }} ];
+	} else if (mysorttype== "803"){
+		filter = [ {"project":{ "order":"asc"}}, { "req_date": { "order": "desc" }} ];
+	} else if (mysorttype== "804"){
+		filter = [ {"map":{ "order":"asc"}}, { "req_date": { "order": "desc" }} ];
+	} else if (mysorttype== "805"){
+		filter = [ {"requested-by":{ "order":"asc"}}, { "req_date": { "order": "desc" }} ];
+	} else if (mysorttype== "806"){
+		filter = [ {"input":{ "order":"asc"}}, { "req_date": { "order": "desc" }} ];
+	} else if (mysorttype== "807"){
+		filter = [ {"start_timestamp": { "order": "desc" }} ];
+	} else if (mysorttype== "808"){
+		filter = [ {"end_timestamp": { "order": "desc" }} ];
+	} else if (mysorttype== "809"){
+		filter = [ {"total_time_ns":{ "order":"asc"}}, { "req_date": { "order": "desc" }} ];
+	} else if (mysorttype== "810"){
+		filter = [ {"cpu_power_consumption":{ "order":"asc"}}, { "req_date": { "order": "desc" }} ];
+	} else if (mysorttype== "811"){
+		filter = [ {"mem_power_consumption":{ "order":"asc"}}, { "req_date": { "order": "desc" }} ];
+	}
+}
 	return new Promise( (resolve,reject) => {
 		var elasticsearch = require('elasticsearch');
 		var client = new elasticsearch.Client({
@@ -245,11 +271,12 @@ find_exec: function(es_server, my_index, app, pretty){
 		if(app==undefined){
 			resolve({});
 		}else if(app.length==0){
+			var myquery =  {"query":{"match_all": {} }, "sort": filter };
 			client.search({
 				index: my_index,
 				type: my_type,
 				size: 10000,
-				body:{"query":{"match_all": {} }, "sort": [{"req_date": {"order": "desc" }}]}
+				body: myquery
 			}, function(error, response) {
 				if(error){
 					reject("search error: "+error)
@@ -269,7 +296,7 @@ find_exec: function(es_server, my_index, app, pretty){
 					});
 				};
 				resolve("{\"hits\" :["+result+"]}");
-			});
+		});
 		}else{
 			client.search({
 				index: my_index,
@@ -278,7 +305,7 @@ find_exec: function(es_server, my_index, app, pretty){
 					"query":{"bool":{"must":[
 						{"match_phrase":{"app": app }}, {"term":{"app_length": app.length}}
 					]}}
-				}
+				} 
 			}, function(error, response) {
 				if(error) {
 					reject ("error: "+error);

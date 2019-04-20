@@ -1601,12 +1601,13 @@ app.get('/get_exec_list', function(req, res) {
 	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
 	var message_bad_request = "UPLOAD Bad Request missing ";
 	var pretty		= find_param(req.body.pretty, req.query.pretty);
+	var mysorttype	= find_param(req.body.sorttype, req.query.sorttype);
 	var execname	= CommonModule.remove_quotation_marks(find_param(req.body.app, req.query.app));
 	if (execname==undefined) execname="";
-	var result_count = ExecsModule.query_count_exec_app_name(es_servername + ":" + es_port,SERVERDB, execname);
+	var result_count = ExecsModule.query_count_exec_app_name(es_servername + ":" + es_port, SERVERDB, execname);
 	result_count.then((resultResolve) => {
 		if(resultResolve!=0){//new entry (2) we resister new entry
-			var result_id = ExecsModule.find_exec(es_servername + ":" + es_port,SERVERDB, execname,pretty);
+			var result_id = ExecsModule.find_exec(es_servername + ":" + es_port, SERVERDB, execname, pretty, mysorttype);
 			result_id.then((result_json) => {
 				res.writeHead(200, {"Content-Type": contentType_text_plain});
 				res.end(result_json);
