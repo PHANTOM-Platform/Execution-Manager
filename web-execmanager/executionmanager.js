@@ -37,7 +37,7 @@ function exec_load_header(){
 	menuhtml+="	<li class=\"menuphantom\"><a href=\"exec_update.html\">Update an Execution</a></li>";
 	menuhtml+="	<li class=\"menuphantom\"><a href=\"exec_update1.json\">Download JSON example 1</a></li>";
 	menuhtml+="	<li class=\"menuphantom\"><a href=\"exec_update2.json\">Download JSON example 2</a></li>";
-	menuhtml+="	<li class=\"menuphantom\"><a href=\"log_list.html\">List of logs</a></li>";	
+	menuhtml+="	<li class=\"menuphantom\"><a href=\"log_list.html\">List of logs</a></li>";
 	menuhtml+="	<li class=\"menuphantom\"><input type=\"button\" value=\"Night mode\" onclick=\"switchnightmode()\"></a></li>";
 // <!--<li class="menuphantom"><a href="query_metadata.html">Query metadata</a></li> -->
 	menuhtml+="	<li class=\"phantomlogo\" style=\"float:right\">";
@@ -114,25 +114,27 @@ function exec_login(user,password){
 function jsontotable_exec_brief(myjson,count,first,level,lastwascoma,mtitle,filtered_fields){
 	var html ="";
 	var i;
+	var counter=1;
 // 	if(first==true){ html ="{"; }
 	var mainc=mtitle;
 	if(mtitle==true){
 		html += "<div><table style='border:1px solid black'>\n";// style='width:100%'>";
-			html += "<th><strong> execution_id </strong> </th>\n";
-			html += "<td align=\"center\"><strong>&nbsp;Req status&nbsp;</strong></td>\n";
-		html += "<td align=\"center\"><strong> Project </strong></td>\n";
-		html += "<td align=\"center\"><strong> Map </strong></td>\n";
-		html += "<td align=\"center\"><strong>&nbsp;Requested-by&nbsp;</strong></td>\n";
-		html += "<td align=\"center\"><strong> Input </strong></td>\n";
-		html += "<td align=\"center\"><strong>&nbsp;Request date </strong></td>\n";
-		html += "<td align=\"center\"><strong>&nbsp;Start timestamp&nbsp;</strong></td>\n";
-		html += "<td align=\"center\"><strong>&nbsp;End timestamp&nbsp;</strong></td>\n";
-		html += "<td align=\"center\"><strong>&nbsptotal time ns&nbsp;</strong></td>\n";
-		html += "<td align=\"center\"><strong>&nbspCPU power consumption&nbsp;</strong></td>\n";
-		html += "<td align=\"center\"><strong>&nbspMEM power consumption&nbsp;</strong></td>\n";
+		html += "<td>#</td><td align=\"center\"><strong> <a onclick=\"return list_execs(801,document.getElementById('appname').value)\">Execution id</a> </strong> </td>\n";
+		html += "<td align=\"center\"><strong>&nbsp;<a onclick=\"return list_execs(802,document.getElementById('appname').value)\">Req status&nbsp;</a></strong></td>\n";
+		html += "<td align=\"center\"><strong><a onclick=\"return list_execs(803,document.getElementById('appname').value)\">Project</a></strong></td>\n";
+		html += "<td align=\"center\"><strong><a onclick=\"return list_execs(804,document.getElementById('appname').value)\">Map</a></strong></td>\n";
+		html += "<td align=\"center\"><strong>&nbsp;<a onclick=\"return list_execs(805,document.getElementById('appname').value)\">Requested-by&nbsp;</a></strong></td>\n";
+		html += "<td align=\"center\"><strong><a onclick=\"return list_execs(806,document.getElementById('appname').value)\">Input</a></strong></td>\n";
+		html += "<td align=\"center\"><strong>&nbsp;<a onclick=\"return list_execs(5,document.getElementById('appname').value)\">Request date</a></strong></td>\n";
+		html += "<td align=\"center\"><strong>&nbsp;<a onclick=\"return list_execs(807,document.getElementById('appname').value)\">Start timestamp&nbsp;</a></strong></td>\n";
+		html += "<td align=\"center\"><strong>&nbsp;<a onclick=\"return list_execs(808,document.getElementById('appname').value)\">End timestamp&nbsp;</a></strong></td>\n";
+		html += "<td align=\"center\"><strong>&nbsp;<a onclick=\"return list_execs(809,document.getElementById('appname').value)\">total time ns&nbsp;</a></strong></td>\n";
+		html += "<td align=\"center\"><strong>&nbsp;<a onclick=\"return list_execs(810,document.getElementById('appname').value)\">CPU power consumption&nbsp;</a></strong></td>\n";
+		html += "<td align=\"center\"><strong>&nbsp;<a onclick=\"return list_execs(811,document.getElementById('appname').value)\">MEM power consumption&nbsp;</a></strong></td>\n";
 // 		io_power_consumption
 		count++; 
 	}
+	
 	var countseries=0;
 	myjson.forEach(function(val) {
 // 		if (count != 1 && lastwascoma==false) {
@@ -163,62 +165,63 @@ function jsontotable_exec_brief(myjson,count,first,level,lastwascoma,mtitle,filt
 // 							html += "</table></div></td><br>\n";
 // 							html += "<div><table style='border:1px solid black'>\n";// style='width:100%'>";
 						}
-						html += "<th> " + val['execution_id'] +" </th>\n";
+						html += "<td>"+counter+"</td><th> " + val['execution_id'] +" </th>\n";
+						counter++;
 						if(val['req_status']=="pending"){ //yellow
-							html += "<td bgcolor=\"#f3ff3a\"><font color=\"black\">";
+							html += "<td bgcolor=\"#f3ff3a\"";
 						}else if(val['req_status']=="completed"){//green
-							html += "<td bgcolor=\"#00FF00\"><font color=\"black\">";
+							html += "<td bgcolor=\"#00FF00\"";
 						}else if(val['req_status']=="cancelled"){//red
-							html += "<td bgcolor=\"#ff3e29\"><font color=\"black\">";
+							html += "<td bgcolor=\"#ff3e29\"";
 						}else if(val['req_status']=="started"){//green
-							html += "<td bgcolor=\"#00FF00\"><font color=\"black\">" ;
+							html += "<td bgcolor=\"#00FF00\"";
 						}else{
-							html += "<td bgcolor=\"#f3ff3a\"><font color=\"black\">" ;
+							html += "<td bgcolor=\"#f3ff3a\"";
 						}
+						html += " align=\"center\"><font color=\"black\">";
+						
 						if (val['req_status']!=undefined){
-							html += ""+val['req_status'] +"</td>\n";
-						}else{
-							html += "</td>\n";
+							html += val['req_status'];
 						}
-						
-						html += "<td>&nbsp;" + val['project'] +"&nbsp;</td>\n";
-						html += "<td>&nbsp;" + val['map'] +"&nbsp;</td>\n";
-						html += "<td>&nbsp;" + val['requested-by'] +"&nbsp;</td>\n";
+						html += "&nbsp;</td>\n";
+
+						html += "<td align=\"center\">&nbsp;" + val['project'] +"&nbsp;</td>\n";
+						html += "<td align=\"center\">&nbsp;" + val['map'] +"&nbsp;</td>\n";
+						html += "<td align=\"center\">&nbsp;" + val['requested-by'] +"&nbsp;</td>\n";
+						html += "<td>";
 						if (val['input']!=undefined){
-							html += "<td>" + val['input'] +"&nbsp;";
-						}else{
-							html += "<td>";
+							html += val['input'];
 						}
-						html += "</td>\n<td>" + val['req_date'] +" </td>\n";
+						html += "&nbsp;</td>\n<td>" + val['req_date'] +"</td>\n";
 						if (val['start_timestamp']!=undefined){
-							html += "<td>" + val['start_timestamp'] +"&nbsp;</td>\n";
-						}else{
-							html += "<td></td>\n";
+							html += "<td>" + val['start_timestamp'];
 						}
+						html += "&nbsp;</td>\n";
+
+						html += "<td align=\"right\">" ;
 						if (val['end_timestamp']!=undefined){
-							html += "<td>" + val['end_timestamp'] +"&nbsp;</td>\n";
-						}else{
-							html += "<td></td>\n";
+							html += val['end_timestamp'];
 						}
-						
-						
+						html += "&nbsp;</td>\n";
+
+						html += "<td align=\"right\">" ;
 						if (val['total_time_ns']!=undefined){
-							html += "<td>" + val['total_time_ns'] +"&nbsp;</td>\n";
-						}else{
-							html += "<td></td>\n";
+							html += Math.round(val['total_time_ns']);
 						}
+						html += "&nbsp;</td>\n";
+
+						html += "<td align=\"right\">" ;
 						if (val['cpu_power_consumption']!=undefined){
-							html += "<td align=\"right\">" + val['cpu_power_consumption'] +"&nbsp;</td>\n";
-						}else{
-							html += "<td></td>\n";
+							html += val['cpu_power_consumption'];
 						}
+						html += "&nbsp;</td>\n";
+
+						html += "<td align=\"right\">" ;
 						if (val['mem_power_consumption']!=undefined){
-							html += "<td align=\"right\">" + val['mem_power_consumption'] +"&nbsp;</td>\n";
-						}else{
-							html += "<td></td>\n";
-						}						
-						
-						
+							html += val['mem_power_consumption'];
+						}
+						html += "&nbsp;</td>\n";
+
 						mtitle=false;
 						count++;
 						lastwascoma=false;
@@ -294,7 +297,6 @@ function upload_exec_with_token( UploadJSON ) {
 	return false;
 }
 
-
 function update_exec_with_token( UploadJSON ) {
 	var url = build_execman_path() +"/update_exec";
 	upload_with_token( UploadJSON ,url);
@@ -308,7 +310,7 @@ function list_exec_logs(mytype,execid){
 }
 
 function list_execs(mytype,execname){
-	var url = build_execman_path() +"/get_exec_list?app=\""+execname+"\"";//?pretty='true'";
+	var url = build_execman_path() +"/get_exec_list?sorttype="+mytype+"&app=\""+execname+"\"";
 	list_results(mytype,url,["host"],["_length","start_timestamp_ns","end_timestamp_ns"]);
 	return false;
 }
