@@ -132,9 +132,9 @@ function jsontotable_exec_brief(myjson,count,first,level,lastwascoma,mtitle,filt
 		html += "<td align=\"center\"><strong>&nbsp;<a onclick=\"return list_execs(810,document.getElementById('appname').value)\">CPU power consumption&nbsp;</a></strong></td>\n";
 		html += "<td align=\"center\"><strong>&nbsp;<a onclick=\"return list_execs(811,document.getElementById('appname').value)\">MEM power consumption&nbsp;</a></strong></td>\n";
 // 		io_power_consumption
-		count++; 
+		count++;
 	}
-	
+
 	var countseries=0;
 	myjson.forEach(function(val) {
 // 		if (count != 1 && lastwascoma==false) {
@@ -304,7 +304,7 @@ function update_exec_with_token( UploadJSON ) {
 }
 
 function list_exec_logs(mytype,execid){
-	var url = build_execman_path() + "/get_log_list?pretty='true'";
+	var url = build_execman_path() + "/get_log_list?sorttype="+mytype+"&pretty='true'";
 	list_results(mytype,url,["host"],["_length","_index","_type","_score","sort"]);
 	return false;
 }
@@ -314,4 +314,3 @@ function list_execs(mytype,execname){
 	list_results(mytype,url,["host"],["_length","start_timestamp_ns","end_timestamp_ns"]);
 	return false;
 }
-

@@ -8,7 +8,7 @@
 	<meta name="reply-to" content="hpcjmont@hlrs.de">
 	<meta name="copyright" content="Copyright (C) 2018 University of Stuttgart">
 	<meta name="language" content="EN">
-	<meta name="revised" content="July 4, 2018" />
+	<meta name="revised" content="July 4, 2018"/>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta name="robots" content="noindex">
 	<meta name="googlebot" content="noindex">
@@ -17,6 +17,16 @@
 	<script src="phantom.js"></script> <script src="executionmanager.js"></script>
 </head>
 
+<style>
+a.blueUnderline {
+   color: #0000ff;
+   text-decoration: underline;
+}
+.red {
+    color: #0000ff;
+}
+</style>
+
 <body onload="start_page_new()" id="body" ><!--class="light-mode"-->
 	<script>
 		var currentmode= localStorage.getItem('currentmode');
@@ -24,7 +34,7 @@
 			body.className = currentmode;
 	</script>
 	<div id="menu_phantom"></div>
-	
+
 	<div id="menu_login" style="display:none"></div>
 
 	<div id="phantom_operation">
@@ -40,7 +50,7 @@
 		User name (optional): <input type="text" name="username" id="username" value=""> leave empty if not wish to filter by name<br>
 		<input type="hidden" name="pretty" value="true">
 		<!-- upload button-->
-		<input type="submit" onclick="return list_exec_logs(22,document.getElementById('username').value)" value="Show LOGs in compact Table" />
+		<input type="submit" onclick="return list_exec_logs(220,document.getElementById('username').value)" value="Show LOGs in compact Table"/>
 		<input type="submit" onclick="return list_exec_logs(1,document.getElementById('username').value)" value="Show LOGs in Table"/>
 		<input type="submit" onclick="return list_exec_logs(2,document.getElementById('username').value)" value="Show LOGs as JSON"/>
 		<input type="submit" onclick="return list_exec_logs(3,document.getElementById('username').value)" value="Show raw reply from server"/>
