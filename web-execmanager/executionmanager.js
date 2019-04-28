@@ -119,18 +119,18 @@ function jsontotable_exec_brief(myjson,count,first,level,lastwascoma,mtitle,filt
 	var mainc=mtitle;
 	if(mtitle==true){
 		html += "<div><table style='border:1px solid black'>\n";// style='width:100%'>";
-		html += "<td>#</td><td align=\"center\"><strong> <a onclick=\"return list_execs(801,document.getElementById('appname').value)\">Execution id</a> </strong> </td>\n";
-		html += "<td align=\"center\"><strong>&nbsp;<a onclick=\"return list_execs(802,document.getElementById('appname').value)\">Req status&nbsp;</a></strong></td>\n";
-		html += "<td align=\"center\"><strong><a onclick=\"return list_execs(803,document.getElementById('appname').value)\">Project</a></strong></td>\n";
-		html += "<td align=\"center\"><strong><a onclick=\"return list_execs(804,document.getElementById('appname').value)\">Map</a></strong></td>\n";
-		html += "<td align=\"center\"><strong>&nbsp;<a onclick=\"return list_execs(805,document.getElementById('appname').value)\">Requested-by&nbsp;</a></strong></td>\n";
-		html += "<td align=\"center\"><strong><a onclick=\"return list_execs(806,document.getElementById('appname').value)\">Input</a></strong></td>\n";
-		html += "<td align=\"center\"><strong>&nbsp;<a onclick=\"return list_execs(5,document.getElementById('appname').value)\">Request date</a></strong></td>\n";
-		html += "<td align=\"center\"><strong>&nbsp;<a onclick=\"return list_execs(807,document.getElementById('appname').value)\">Start timestamp&nbsp;</a></strong></td>\n";
-		html += "<td align=\"center\"><strong>&nbsp;<a onclick=\"return list_execs(808,document.getElementById('appname').value)\">End timestamp&nbsp;</a></strong></td>\n";
-		html += "<td align=\"center\"><strong>&nbsp;<a onclick=\"return list_execs(809,document.getElementById('appname').value)\">total time ns&nbsp;</a></strong></td>\n";
-		html += "<td align=\"center\"><strong>&nbsp;<a onclick=\"return list_execs(810,document.getElementById('appname').value)\">CPU power consumption&nbsp;</a></strong></td>\n";
-		html += "<td align=\"center\"><strong>&nbsp;<a onclick=\"return list_execs(811,document.getElementById('appname').value)\">MEM power consumption&nbsp;</a></strong></td>\n";
+		html += "<td>#</td><td align=\"center\"><a onclick=\"return list_execs(801,document.getElementById('appname').value)\" class=\"under-logs\">Execution id</a></td>\n";
+		html += "<td align=\"center\">&nbsp;<a onclick=\"return list_execs(802,document.getElementById('appname').value)\" class=\"under-logs\">Req status&nbsp;</a></td>\n";
+		html += "<td align=\"center\"><a onclick=\"return list_execs(803,document.getElementById('appname').value)\" class=\"under-logs\">Project</a></td>\n";
+		html += "<td align=\"center\"><a onclick=\"return list_execs(804,document.getElementById('appname').value)\" class=\"under-logs\">Map</a></td>\n";
+		html += "<td align=\"center\">&nbsp;<a onclick=\"return list_execs(805,document.getElementById('appname').value)\" class=\"under-logs\">Requested-by&nbsp;</a></td>\n";
+		html += "<td align=\"center\"><a onclick=\"return list_execs(806,document.getElementById('appname').value)\" class=\"under-logs\">Input</a></td>\n";
+		html += "<td align=\"center\">&nbsp;<a onclick=\"return list_execs(5,document.getElementById('appname').value)\" class=\"under-logs\">Request date</a></td>\n";
+		html += "<td align=\"center\">&nbsp;<a onclick=\"return list_execs(807,document.getElementById('appname').value)\" class=\"under-logs\">Start timestamp&nbsp;</a></td>\n";
+		html += "<td align=\"center\">&nbsp;<a onclick=\"return list_execs(808,document.getElementById('appname').value)\" class=\"under-logs\">End timestamp&nbsp;</a></td>\n";
+		html += "<td align=\"center\">&nbsp;<a onclick=\"return list_execs(809,document.getElementById('appname').value)\" class=\"under-logs\">total time ns&nbsp;</a></td>\n";
+		html += "<td align=\"center\">&nbsp;<a onclick=\"return list_execs(810,document.getElementById('appname').value)\" class=\"under-logs\">CPU power consumption&nbsp;</a></td>\n";
+		html += "<td align=\"center\">&nbsp;<a onclick=\"return list_execs(811,document.getElementById('appname').value)\" class=\"under-logs\">MEM power consumption&nbsp;</a></td>\n";
 // 		io_power_consumption
 		count++;
 	}
