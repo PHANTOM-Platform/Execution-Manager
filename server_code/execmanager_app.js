@@ -791,11 +791,11 @@ app.get('/drop_db', function(req, res) {
 		res.end("200: "+resultFind+"\n");
 		//not register log here, because we can not register nothing after delete the DB !!!
 	},(resultReject)=> {
-// 		console.log("log: Bad Request: " + resultReject); 
+// 		console.log("log: Bad Request: " + resultReject);
 		res.writeHead(400, {"Content-Type": contentType_text_plain});
 		res.end("\n400: Bad Request "+resultReject+"\n");
 		//not register log here, because the error can be due not existing DB to be drop.
-	} );
+	});
 });
 
 //this function registers a list of mappings with a recursive set of promises
@@ -812,7 +812,7 @@ function register_next_mapping (arr_labels, arr_mappings, es_servername, es_port
 					resolve(next_resultFind);
 				},(next_resultReject)=> {
 					reject(next_resultReject);
-				} );
+				});
 			}else{
 				resolve(resultFind);
 			}
@@ -1520,14 +1520,13 @@ app.get('/older_pending_execution', function(req, res) { //this is for the table
 app.post('/new_log', function(req, res) {
 	"use strict";
 	var currentdate = dateFormat(new Date(), "yyyy-mm-dd'T'HH:MM:ss.l");
-	var pretty		= find_param(req.body.pretty, req.query.pretty);
 	var log_code	= find_param(req.body.code, req.query.code);
 	var log_user	= find_param(req.body.user, req.query.user);
 	var log_ip		= find_param(req.body.ip, req.query.ip);
 	var log_message	= find_param(req.body.message, req.query.message);
 	if(log_code==undefined) log_code="";
 	if(log_user==undefined) log_user="";
-	if(log_ip==undefined) log_ip="";
+	if(log_ip==undefined) log_ip=req.connection.remoteAddress;
 	if(log_message==undefined) log_message="";
 	var resultlog = LogsModule.register_log(es_servername + ":" + es_port, SERVERDB, log_code, log_ip, log_message, currentdate, log_user);
 	resultlog.then((resolve_result) => {
