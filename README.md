@@ -155,9 +155,14 @@ bash setup-new-execmanager-server.sh
 
 NOTICE: For securoity reasons, users' accounts can be ONLY registered on the server. Requests from different IPs will be rejected.
         
+## 6.- RESTful API Queries
+ 
+Please refer to the [Reference Manual of the RESTful API][apimanual] to get more details.
+The Manual contains a description of each of the implemented methods, with examples of use, and type of possible responses. 
 
 
-## 6.- Example of use
+
+## 7.- Example of use
 
 The folders [api_command_line][api_command_line], [api_bash_scripts][api_bash_scripts], and [api_java][api_java] shows examples of using the PHANTOM Execution-Manager
 
@@ -187,6 +192,11 @@ Please [create](https://github.com/jmmontanana/Execution-Manager/issues) an issu
 **Cheptsov, Alexey, HLRS**
 + [github/cheptsov](https://github.com/alexey-cheptsov)
 
+## Release History
+| Date        | Version   | Comment          |
+| ----------- | --------- | ---------------- |
+| 2019-05-15  | 1.0.0     | Tested with Real Use Cases  |
+
 ## License
 Copyright (C) 2018 University of Stuttgart
 
@@ -207,3 +217,4 @@ Copyright (C) 2018 University of Stuttgart
 [server]: https://github.com/PHANTOM-Platform/Monitoring/tree/master/Monitoring_server
 [excess]: http://www.excess-project.eu
 [phantom]: http://www.phantom-project.org
+[apimanual]: https://phantom-platform.github.io/Execution-Manager/docs/
