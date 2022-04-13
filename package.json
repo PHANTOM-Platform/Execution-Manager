@@ -28,7 +28,7 @@
     "@hapi/cryptiles": "^5.0.0",
     "@hapi/hoek": "^9.0.4",
     "archiver": "^3.1.1",
-    "async": "^2.6.3",
+    "async": "^3.2.2",
     "basic-auth-connect": "^1.0.0",
     "body-parser": "^1.19.0",
     "cookie-parser": "^1.4.5",
